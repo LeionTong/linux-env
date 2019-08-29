@@ -1,5 +1,5 @@
 favorites=pamac-manager.desktop,exo-terminal-emulator.desktop,exo-file-manager.desktop,exo-web-browser.desktop,exo-mail-reader.desktop,virtualbox.desktop,firefox.desktop,thunderbird.desktop,nixnote2.desktop
-recent=anydesk.desktop,com.teamviewer.TeamViewer.desktop,org.remmina.Remmina.desktop,virtualbox.desktop,nixnote2.desktop,cmake-gui.desktop,atom.desktop,thunderbird.desktop,baidunetdisk.desktop,xfce-wmtweaks-settings.desktop
+recent=org.gnome.baobab.desktop,exo-file-manager.desktop,smplayer.desktop,calibre-gui.desktop,appimagelaunchersettings.desktop,nixnote2.desktop,xfce-ui-settings.desktop,xfce4-settings-editor.desktop,audacious.desktop,qt5ct.desktop
 button-title=Applications
 button-icon=/home/leion/Windows-OS/Users/leion/OneDrive/图片/本机照片/lgo-leion.png
 button-single-row=false
@@ -21,8 +21,8 @@ position-commands-alternate=false
 position-categories-alternate=false
 stay-on-focus-out=false
 confirm-session-command=true
-menu-width=400
-menu-height=519
+menu-width=416
+menu-height=564
 menu-opacity=100
 command-settings=xfce4-settings-manager
 show-command-settings=true

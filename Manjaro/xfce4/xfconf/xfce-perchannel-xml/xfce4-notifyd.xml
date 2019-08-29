@@ -7,6 +7,7 @@
       <value type="string" value="baidunetdisk"/>
       <value type="string" value="blueman"/>
       <value type="string" value="Blueman"/>
+      <value type="string" value="calibre-gui"/>
       <value type="string" value="Deepin Screenshot"/>
       <value type="string" value="Electron"/>
       <value type="string" value="FileZilla"/>
@@ -23,9 +24,11 @@
       <value type="string" value="Package Manager"/>
       <value type="string" value="Thunar"/>
       <value type="string" value="Thunderbird"/>
+      <value type="string" value="Vocal"/>
       <value type="string" value="Xfce volume control"/>
       <value type="string" value="Xfce4-notifyd settings"/>
       <value type="string" value="xfce4-power-manager"/>
+      <value type="string" value="xfdesktop"/>
       <value type="string" value="软件包管理器"/>
     </property>
   </property>

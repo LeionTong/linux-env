@@ -14,6 +14,7 @@
         <value type="int" value="22"/>
         <value type="int" value="1"/>
         <value type="int" value="4"/>
+        <value type="int" value="7"/>
         <value type="int" value="6"/>
         <value type="int" value="9"/>
         <value type="int" value="10"/>
@@ -46,7 +47,9 @@
         <value type="string" value="-shutdown"/>
       </property>
     </property>
-    <property name="plugin-4" type="string" value="pager"/>
+    <property name="plugin-4" type="string" value="pager">
+      <property name="rows" type="uint" value="2"/>
+    </property>
     <property name="plugin-6" type="string" value="systray">
       <property name="names-visible" type="array">
         <value type="string" value="electron"/>
@@ -97,6 +100,11 @@
         <value type="string" value="variety"/>
       </property>
       <property name="names-ordered" type="array">
+        <value type="string" value="flameshot"/>
+        <value type="string" value="任务管理器"/>
+        <value type="string" value="kgpg"/>
+        <value type="string" value="smplayer"/>
+        <value type="string" value="steam"/>
         <value type="string" value="teamviewer"/>
         <value type="string" value="audacious"/>
         <value type="string" value="kde connect indicator"/>
@@ -161,6 +169,7 @@
         <value type="string" value="15658525423.desktop"/>
       </property>
     </property>
+    <property name="plugin-7" type="string" value="netload"/>
   </property>
   <property name="configver" type="int" value="2"/>
 </channel>
