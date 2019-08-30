@@ -1,5 +1,5 @@
 favorites=pamac-manager.desktop,exo-terminal-emulator.desktop,exo-file-manager.desktop,exo-web-browser.desktop,exo-mail-reader.desktop,virtualbox.desktop,firefox.desktop,thunderbird.desktop,nixnote2.desktop
-recent=org.gnome.baobab.desktop,exo-file-manager.desktop,smplayer.desktop,calibre-gui.desktop,appimagelaunchersettings.desktop,nixnote2.desktop,xfce-ui-settings.desktop,xfce4-settings-editor.desktop,audacious.desktop,qt5ct.desktop
+recent=xfce4-settings-editor.desktop,google-chrome.desktop,shotwell.desktop,viewnior.desktop,smplayer.desktop,org.gnome.baobab.desktop,exo-file-manager.desktop,calibre-gui.desktop,appimagelaunchersettings.desktop,nixnote2.desktop
 button-title=Applications
 button-icon=/home/leion/Windows-OS/Users/leion/OneDrive/图片/本机照片/lgo-leion.png
 button-single-row=false

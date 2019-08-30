@@ -281,7 +281,7 @@
     </keybind>
     <keybind key="W-l">
       <action name="Execute">
-        <command>xscreensaver-command -lock</command>
+        <command>xfce4-screensaver-command -l</command>
         <startupnotify>
           <enabled>yes</enabled>
           <name>xscreensaver-command -lock</name>

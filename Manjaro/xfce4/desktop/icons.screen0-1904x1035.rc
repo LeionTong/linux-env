@@ -1,7 +1,23 @@
 [xfdesktop-version-4.10.3+-rcfile_format]
 4.10.3+=true
 
-[/home/leion/Desktop/Desktop]
+[/home/leion/Desktop/Docker-cloudman]
+row=5
+col=0
+
+[/home/leion/Desktop/Kubernetes_Handbook_-_Kubernetes中文指南_云原生应用架构实践手册_by_Jimmy_Song(宋净超)_-_Jimmy_Song（宋净超）.epub]
+row=8
+col=0
+
+[/home/leion/Desktop/Projects～项目]
+row=6
+col=0
+
+[/home/leion/Desktop/kubernetes-handbook-jimmysong-20181218.epub]
+row=7
+col=0
+
+[/home/leion/Desktop/容器云平台]
 row=4
 col=0
 

@@ -44,12 +44,12 @@
       <property name="&lt;Primary&gt;&lt;Shift&gt;Print" type="string" value="xfce4-screenshooter -r"/>
       <property name="&lt;Super&gt;e" type="string" value="thunar"/>
       <property name="&lt;Super&gt;t" type="string" value="xfce4-terminal"/>
-      <property name="Super_L" type="string" value="xfce4-popup-whiskermenu"/>
-      <property name="&lt;Super&gt;l" type="string" value="xflock4"/>
       <property name="Print" type="string" value="xfce4-screenshooter -fd 1"/>
       <property name="&lt;Shift&gt;&lt;Alt&gt;dollar" type="string" value="deepin-screenshot"/>
       <property name="&lt;Primary&gt;Print" type="string" value="flameshot gui"/>
       <property name="&lt;Primary&gt;&lt;Shift&gt;Escape" type="string" value="xfce4-taskmanager"/>
+      <property name="&lt;Super&gt;l" type="string" value="xflock4"/>
+      <property name="&lt;Super&gt;x" type="string" value="xfce4-popup-whiskermenu"/>
     </property>
   </property>
   <property name="xfwm4" type="empty">

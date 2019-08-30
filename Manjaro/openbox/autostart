@@ -17,5 +17,6 @@
 #xfce-mcs-manager &
 
 fcitx &
+xfce4-screensaver &
 xfce4-power-manager &
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
