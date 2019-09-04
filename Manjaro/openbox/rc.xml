@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <openbox_config xmlns="http://openbox.org/3.4/rc" xmlns:xi="http://www.w3.org/2001/XInclude">
   <resistance>
     <strength>10</strength>
@@ -39,7 +40,7 @@
                   'Active' - where the active window is -->
   </placement>
   <theme>
-    <name>Orang</name>
+    <name>Onyx-Citrus</name>
     <titleLayout>NLIMC</titleLayout>
     <!--
       available characters are NDSLIMC, each can occur at most once.
@@ -280,24 +281,13 @@
       <action name="DirectionalCycleWindows"/>
     </keybind>
     <keybind key="W-l">
-      <keybind key="C-S-Escape">
-        <action name="Execute">
-          <command>xfce4-taskmanager</command>
-          <startupnotify>
-            <enabled>yes</enabled>
-            <name>TaskManager</name>
-          </startupnotify>
-        </action>
-      </keybind>
-      <keybind key="C-S-Escape">
-        <action name="Execute">
-          <command>xfce4-taskmanager</command>
-          <startupnotify>
-            <enabled>yes</enabled>
-            <name>TaskManager</name>
-          </startupnotify>
-        </action>
-      </keybind>
+      <action name="Execute">
+        <command>xscreensaver-command -lock</command>
+        <startupnotify>
+          <enabled>yes</enabled>
+          <name>xscreensaver-command -lock</name>
+        </startupnotify>
+      </action>
     </keybind>
     <keybind key="W-s">
       <action name="Execute">
@@ -335,21 +325,21 @@
         </startupnotify>
       </action>
     </keybind>
-    <keybind key="A-F2">
-      <action name="Execute">
-        <command>gmrun</command>
-        <startupnotify>
-          <enabled>yes</enabled>
-          <name>Run command</name>
-        </startupnotify>
-      </action>
-    </keybind>
     <keybind key="C-S-Escape">
       <action name="Execute">
         <command>xfce4-taskmanager</command>
         <startupnotify>
           <enabled>yes</enabled>
           <name>TaskManager</name>
+        </startupnotify>
+      </action>
+    </keybind>
+    <keybind key="A-F2">
+      <action name="Execute">
+        <command>gmrun</command>
+        <startupnotify>
+          <enabled>yes</enabled>
+          <name>Run command</name>
         </startupnotify>
       </action>
     </keybind>
