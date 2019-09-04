@@ -39,7 +39,7 @@
                   'Active' - where the active window is -->
   </placement>
   <theme>
-    <name>Vertex-Maia</name>
+    <name>Orang</name>
     <titleLayout>NLIMC</titleLayout>
     <!--
       available characters are NDSLIMC, each can occur at most once.
@@ -72,7 +72,7 @@
       <!-- 'italic' or 'normal' -->
     </font>
     <font place="MenuHeader">
-      <name>Noto Sans</name>
+      <name>DejaVu Sans</name>
       <size>9</size>
       <!-- font size in points -->
       <weight>Normal</weight>
@@ -81,7 +81,7 @@
       <!-- 'italic' or 'normal' -->
     </font>
     <font place="MenuItem">
-      <name>Noto Sans</name>
+      <name>DejaVu Sans</name>
       <size>9</size>
       <!-- font size in points -->
       <weight>Normal</weight>
@@ -90,7 +90,7 @@
       <!-- 'italic' or 'normal' -->
     </font>
     <font place="ActiveOnScreenDisplay">
-      <name>Noto Sans</name>
+      <name>DejaVu Sans</name>
       <size>9</size>
       <!-- font size in points -->
       <weight>Bold</weight>
@@ -99,7 +99,7 @@
       <!-- 'italic' or 'normal' -->
     </font>
     <font place="InactiveOnScreenDisplay">
-      <name>Noto Sans</name>
+      <name>DejaVu Sans</name>
       <size>9</size>
       <!-- font size in points -->
       <weight>Bold</weight>
@@ -206,17 +206,17 @@
     </keybind>
     <keybind key="S-A-Right">
       <action name="SendToDesktop">
-        <desktop>1</desktop>
+        <desktop>2</desktop>
       </action>
     </keybind>
     <keybind key="S-A-Up">
       <action name="SendToDesktop">
-        <desktop>1</desktop>
+        <desktop>4</desktop>
       </action>
     </keybind>
     <keybind key="S-A-Down">
       <action name="SendToDesktop">
-        <desktop>1</desktop>
+        <desktop>3</desktop>
       </action>
     </keybind>
     <keybind key="W-F1">
@@ -280,11 +280,31 @@
       <action name="DirectionalCycleWindows"/>
     </keybind>
     <keybind key="W-l">
+      <keybind key="C-S-Escape">
+        <action name="Execute">
+          <command>xfce4-taskmanager</command>
+          <startupnotify>
+            <enabled>yes</enabled>
+            <name>TaskManager</name>
+          </startupnotify>
+        </action>
+      </keybind>
+      <keybind key="C-S-Escape">
+        <action name="Execute">
+          <command>xfce4-taskmanager</command>
+          <startupnotify>
+            <enabled>yes</enabled>
+            <name>TaskManager</name>
+          </startupnotify>
+        </action>
+      </keybind>
+    </keybind>
+    <keybind key="W-s">
       <action name="Execute">
-        <command>xfce4-screensaver-command -l</command>
+        <command>slock</command>
         <startupnotify>
           <enabled>yes</enabled>
-          <name>xscreensaver-command -lock</name>
+          <name>slock</name>
         </startupnotify>
       </action>
     </keybind>
@@ -314,6 +334,36 @@
           <name>Thunar</name>
         </startupnotify>
       </action>
+    </keybind>
+    <keybind key="A-F2">
+      <action name="Execute">
+        <command>gmrun</command>
+        <startupnotify>
+          <enabled>yes</enabled>
+          <name>Run command</name>
+        </startupnotify>
+      </action>
+    </keybind>
+    <keybind key="C-S-Escape">
+      <action name="Execute">
+        <command>xfce4-taskmanager</command>
+        <startupnotify>
+          <enabled>yes</enabled>
+          <name>TaskManager</name>
+        </startupnotify>
+      </action>
+    </keybind>
+    <keybind key="C-S-A-Left">
+      <action name="SendToDesktopLeft"/>
+    </keybind>
+    <keybind key="C-S-A-Right">
+      <action name="SendToDesktopRight"/>
+    </keybind>
+    <keybind key="C-S-A-Up">
+      <action name="SendToDesktopUp"/>
+    </keybind>
+    <keybind key="C-S-A-Down">
+      <action name="SendToDesktopDown"/>
     </keybind>
   </keyboard>
   <mouse>

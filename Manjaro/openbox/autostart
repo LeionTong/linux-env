@@ -17,6 +17,7 @@
 #xfce-mcs-manager &
 
 fcitx &
-xfce4-screensaver &
-xfce4-power-manager &
 exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+xfce4-power-manager &
+xscreensaver -no-splash &
+#xautolock -time 10 -locker slock &
