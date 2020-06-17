@@ -2,8 +2,15 @@ xterm*locale: true
 xterm*utf8: true
 xterm*utf8Title: true
 !Fonts
-xterm*faceName: DejaVu Sans Mono:antialias=True:pixelsize=14 
+xterm*faceName: DejaVu Sans Mono:antialias=True:pixelsize=14
 xterm*faceNameDoublesize:WenQuanYi Zen Hei Mono:antialias=True:pixelsize=15
 !Colos
 XTerm*background: black
 XTerm*foreground: lightgreen
+
+Xft.antialias: true
+Xft.hinting: true
+Xft.hintstyle: hintslight
+Xft.lcdfilter: lcddefault
+Xft.rgba: rgb
+Xft.dpi: 96
