@@ -1,0 +1,8 @@
+git checkout dev
+git add .
+git ci -am 'by .autocip'
+git push
+git checkout master
+git merge dev -m 'merge by .autocip'
+git push
+git checkout dev
