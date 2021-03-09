@@ -17,7 +17,9 @@
 #xfce-mcs-manager &
 
 fcitx &
-xfce4-power-manager &
-xscreensaver -no-splash &
+latte-dock &
+# plank &
+tint2 &
+# ~/.conky/conky-startup.sh &
 xautolock -time 10 -locker slock &
-exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
