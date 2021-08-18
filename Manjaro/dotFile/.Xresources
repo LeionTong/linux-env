@@ -7,10 +7,15 @@ xterm*faceNameDoublesize:WenQuanYi Zen Hei Mono:antialias=True:pixelsize=15
 !Colos
 XTerm*background: black
 XTerm*foreground: lightgreen
-
 Xft.antialias: true
 Xft.hinting: true
 Xft.hintstyle: hintslight
 Xft.lcdfilter: lcddefault
 Xft.rgba: rgb
 Xft.dpi: 96
+!Copy&Paste
+*VT100*translations: #override \n\ 
+Shift <KeyPress> Insert:insert-selection(CLIPBOARD, CUT_BUFFER1) \n\ 
+~Shift~Ctrl<Btn2Up>: insert-selection(CLIPBOARD, CUT_BUFFER1) \n\ 
+~Shift<BtnUp>: select-end(CLIPBOARD, CUT_BUFFER1)
+
