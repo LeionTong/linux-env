@@ -17,7 +17,7 @@
 #xfce-mcs-manager &
 
 fcitx &
-feh --bg-scale ~/Pictures/My_Pictures/Horizon-ZeroDawn.jpg &
+feh --bg-scale ~/.local/share/wallpapers/Horizon-ZeroDawn.jpg &
 xautolock -time 10 -locker slock &
 latte-dock &	# 也可以选用 plank
 tint2 &
