@@ -1,0 +1,17 @@
+[connection]
+id=sitech-ethernet-wifi1
+uuid=645385d4-31fc-4250-977f-3c9ceea865ec
+type=ethernet
+timestamp=1660727783
+
+[ethernet]
+
+[ipv4]
+address1=192.168.31.7/24,192.168.31.1
+method=manual
+
+[ipv6]
+addr-gen-mode=stable-privacy
+method=auto
+
+[proxy]

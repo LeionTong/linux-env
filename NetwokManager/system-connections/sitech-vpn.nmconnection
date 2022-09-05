@@ -1,30 +1,25 @@
 [connection]
-id=vpn-sitech
+id=sitech-vpn
 uuid=c1627c32-e275-492a-ab69-76b972de73e0
 type=vpn
-autoconnect=false
+timestamp=1656061060
 
 [vpn]
-#修改这行
-gateway=vpn.com
+gateway=vpn.teamshub.com
 ipsec-enabled=yes
 machine-auth-type=psk
 password-flags=0
-#修改这行
-user=123
+user=15225130208
 user-auth-type=password
 service-type=org.freedesktop.NetworkManager.l2tp
 
 [vpn-secrets]
-#修改这行
 ipsec-psk=vpn
-#修改这行
-password=123
+password=25130208
 
 [ipv4]
 method=auto
 never-default=true
-#修改这行
 route1=172.16.0.0/11,1.0.0.1
 route2=10.0.0.0/8,1.0.0.1
 
