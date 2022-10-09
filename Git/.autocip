@@ -7,6 +7,7 @@ AUTOPUSH=1
 #是否自动合并,boolean.
 AUTOMERGE=1
 
+git status
 #如果仓库只有一个分支，则直接提交并（可选）推送到远程。
 if [ `git branch | wc -l` -eq 1 ]
 then
@@ -27,3 +28,4 @@ then
 else
     echo "Nothing happend.\n Are you working in the wrong branch?"
 fi
+git status
