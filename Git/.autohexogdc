@@ -5,5 +5,5 @@ hexo clean
 
 git checkout master
 git add .
-git commit -m 'New post, auto commit.'
+git commit -m 'by .autohexogdc.'
 git push
