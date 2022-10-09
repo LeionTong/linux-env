@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 BRANCH_MASTER=master
 BRANCH_DEV=dev
@@ -10,16 +10,16 @@ AUTOMERGE=1
 #如果仓库只有一个分支，则直接提交并（可选）推送到远程。
 if [ `git branch | wc -l` -eq 1 ]
 then
-    git add . && git commit -am 'by .autocip'
+    git add . && git commit -am 'by .autocip.'
     [ $AUTOPUSH == 1 ] && git push
 #如果仓库不只有一个分支，且当前工作分支名称等于$BRANCH_DEV，
 #则提交，然后（可选）自动合并至主分支，最后（可选）推送到远程。
 elif [[ `git branch --show-current` == $BRANCH_DEV ]]
 then
-    git add . && git commit -am 'by .autocip'
+    git add . && git commit -am 'by .autocip.'
     
     [ $AUTOMERGE == 1 ] && git checkout $BRANCH_MASTER && \
-    git merge $BRANCH_DEV -m 'automerged by .autocip'
+    git merge $BRANCH_DEV -m 'automerged by .autocip.'
     
     [ $AUTOPUSH == 1 ] && git push
 
