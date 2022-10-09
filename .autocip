@@ -28,3 +28,4 @@ then
 else
     echo "Nothing happend.\n Are you working in the wrong branch?"
 fi
+git status
