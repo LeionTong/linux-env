@@ -3,8 +3,7 @@
 
 # 定义函数来处理参数并打印结果
 vpn_start() {
-    # read -p "请输入VPN授权码: " vpn_auth_code
-    echo "\$1: " $1
+    # echo "\$1: " $1
     vpn_auth_code="$1"
     echo "vpn_auth_code: " $vpn_auth_code
 
@@ -37,14 +36,23 @@ vpn_stop() {
 
 proxy_start() {
     echo "STARTING PROXY..."
-    sudo sed -i "s/^external:.*/external: $(hostname -I | awk '{print$2}')/" /etc/danted.conf
-    sudo systemctl restart danted.service
+    IP_VPN=`hostname -I | awk '{print$2}'`
+    if [[ $IP_VPN != "" ]]; then
+        sudo sed -i "s/^external:.*/external: $(hostname -I | awk '{print$2}')/" /etc/danted.conf
+        sudo systemctl restart danted.service
+    else
+        echo -e "\nIP address of VPN is not exist! Check the vpn_auth_code will help .^_^.\n"
+        proxy_stop;
+        vpn_stop;
+    fi
 }
 
 proxy_status() {
     echo "STATUS of PROXY..."
     systemctl status danted.service
-    # DATE=`date +"%b %d"` && awk '/$DATA/ && /dante/ {print}' /var/log/syslog
+    # echo -e "\n\nSTATUS of PROXY LOG..."
+    # date_abbre_month=`date +"%b"` ; date_day=`date +"%d"` ; awk '$1~/'$date_abbre_month'/ && $2~/'$date_day'/ && /dante/ {print}' /var/log/syslog
+    # awk -v date_abbre_month=`date +"%b"` -v date_day=`date +"%d"` '$1~date_abbre_month && $2~date_day && /dante/ {print}' /var/log/syslog
 }
 
 proxy_stop() {
@@ -58,7 +66,7 @@ read -p "请输入要执行的操作: start(1), status(2), stop(3): " action
 case $action in
     start|1)
         vpn_start $1;
-        sleep 5
+        sleep 3
         proxy_start;
         ;;
     status|2)
