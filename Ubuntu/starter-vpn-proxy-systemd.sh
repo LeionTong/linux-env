@@ -15,8 +15,8 @@ vpn_start() {
 
     echo "STARTING VPN..."
     sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
-    # sudo ipsec start --nofork | grep --color=auto authentication
-    # sudo ipsec start
+    # sudo ipsec restart --nofork | grep --color=auto authentication
+    # sudo ipsec restart
     sudo systemctl start strongswan-starter.service
     ## 手工指定 DNS 解析服务器
     # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
