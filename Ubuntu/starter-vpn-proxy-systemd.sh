@@ -38,7 +38,7 @@ proxy_start() {
     echo "STARTING PROXY..."
     IP_VPN=`hostname -I | awk '{print$2}'`
     if [[ $IP_VPN != "" ]]; then
-        sudo sed -i "s/^external:.*/external: $(hostname -I | awk '{print$2}')/" /etc/danted.conf
+        sudo sed -i "s/^external:.*/external: $IP_VPN/" /etc/danted.conf
         sudo systemctl restart danted.service
     else
         echo -e "\nIP address of VPN is not exist! Check the vpn_auth_code will help .^_^.\n"
