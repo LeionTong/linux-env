@@ -1,7 +1,6 @@
 #!/bin/bash
 ## starter-vpn-proxy.sh
 
-# 定义函数来处理参数并打印结果
 vpn_start() {
     # echo "\$1: " $1
     vpn_auth_code="$1"
@@ -13,10 +12,10 @@ vpn_start() {
         echo $vpn_auth_code
     done
 
-    echo "STARTING VPN..."
+    sudo echo "STARTING VPN..."
     sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
     # sudo ipsec restart --nofork | grep --color=auto authentication
-    # sudo ipsec restart
+    # sudo ipsec restart 2>/dev/null
     sudo systemctl start strongswan-starter.service
     ## 手工指定 DNS 解析服务器
     # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
