@@ -12,7 +12,7 @@ vpn_start() {
         echo $vpn_auth_code
     done
 
-    sudo echo "STARTING VPN..."
+    echo "STARTING VPN..."
     sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
     # sudo ipsec restart --nofork | grep --color=auto authentication
     # sudo ipsec restart 2>/dev/null
