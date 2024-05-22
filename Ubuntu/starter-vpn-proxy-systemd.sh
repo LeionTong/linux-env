@@ -78,7 +78,7 @@ case $action in
         proxy_stop;
         ;;
     *)
-        echo "你输入了无效操作! $action"
+        echo "输入的操作无效! $action"
         echo "Usage: $0 {start, status, stop or 1, 2, 3}."
         ;;
 esac
