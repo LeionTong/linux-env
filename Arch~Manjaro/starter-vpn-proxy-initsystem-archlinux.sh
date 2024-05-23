@@ -1,5 +1,5 @@
 #!/bin/bash
-## starter-vpn-proxy.sh
+## starter-vpn-proxy-initsystem-archlinux.sh
 
 vpn_process="strongswan"
 proxy_process="sockd"
