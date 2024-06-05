@@ -1,7 +1,7 @@
 #!/bin/bash
 ## starter-vpn-proxy-initsystem-archlinux.sh
 
-vpn_process="strongswan"
+vpn_process="charon"
 proxy_process="sockd"
 
 # 定义函数检查进程是否存在
