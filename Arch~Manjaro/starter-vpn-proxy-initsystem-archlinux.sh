@@ -1,5 +1,5 @@
 #!/bin/bash
-## starter-vpn-proxy-initsystem-archlinux.sh
+## starter-vpn-proxy.sh
 
 vpn_process="charon"
 proxy_process="sockd"
@@ -51,7 +51,7 @@ vpn_start() {
     echo "STARTING VPN..."
 
     # 检查进程是否存在
-    if is_process_running "$vpn_process"; then
+    if  is_process_running "$vpn_process"; then
         echo "进程 $vpn_process 正在运行，尝试重启..."
         sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
         # sudo ipsec restart --nofork | grep --color=auto authentication
@@ -59,7 +59,7 @@ vpn_start() {
         # sudo systemctl restart strongswan-starter.service
         # 手工指定 DNS 解析服务器
         # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
-        echo "Succeed to restart vpn."
+        echo "VPN 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩."
     else
         echo "进程 $vpn_process 未运行，尝试启动..."
         sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
@@ -68,7 +68,7 @@ vpn_start() {
         # sudo systemctl restart strongswan-starter.service
         # 手工指定 DNS 解析服务器
         # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
-        echo "Succeed to start vpn."
+        echo "VPN 启动成功, Yଘ(੭ˊᵕˋ)੭* ੈ✩"
     fi
 }
 
@@ -80,7 +80,7 @@ vpn_stop() {
         echo "STOPPING VPN..."
         sudo ipsec stop
         # sudo systemctl stop strongswan-starter.service
-        echo "Succeed to stop vpn."
+        echo "VPN 进程已停止."
     else
         echo "进程 $vpn_process 未运行，无需停止。"
     fi
@@ -105,12 +105,12 @@ proxy_start() {
             proxy_stop;
             sudo sockd -D
             # systemctl restart danted.service
-            echo "Succeed to restart proxy."
+            echo "PROXY 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩."
         else
             echo "进程 $proxy_process 未运行，尝试启动..."
             sudo sockd -D
             # systemctl start danted.service
-            echo "Succeed to start proxy."
+            echo "PROXY 启动成功, ଘ(੭ˊᵕˋ)੭* ੈ✩."
         fi
     else
         echo -e "\nIP address of VPN is not ok! Check the vpn_auth_code will help .^_^.\n"
@@ -127,7 +127,7 @@ proxy_stop() {
         echo "STOPPING PROXY..."
         sudo kill -9 $proxy_process_id 2>/dev/null
         sudo rm -f /var/run/sockd.pid
-        echo "Succeed to stop proxy." | sudo tee -a /var/log/sockd.log
+        echo "PROXY 进程已停止." | sudo tee -a /var/log/sockd.log
         # sudo systemctl stop danted.service
         # echo "Succeed to stop proxy."
     else
