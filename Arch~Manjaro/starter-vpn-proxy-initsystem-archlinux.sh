@@ -52,7 +52,7 @@ vpn_start() {
 
     # 检查进程是否存在
     if  is_process_running "$vpn_process"; then
-        echo "进程 $vpn_process 正在运行，尝试重启..."
+        echo "Process $vpn_process is running，try rebooting..."
         sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
         # sudo ipsec restart --nofork | grep --color=auto authentication
         sudo ipsec restart
@@ -61,7 +61,7 @@ vpn_start() {
         # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
         echo "VPN 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩."
     else
-        echo "进程 $vpn_process 未运行，尝试启动..."
+        echo "Process $vpn_process is not running，try booting..."
         sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
         # sudo ipsec start --nofork | grep --color=auto authentication
         sudo ipsec start
@@ -101,13 +101,13 @@ proxy_start() {
     if check_ipv4 "$IP_VPN"; then
         # 检查进程是否存在
         if is_process_running "$proxy_process"; then
-            echo "进程 $proxy_process 正在运行，尝试重启..."
+            echo "Process $proxy_process is running，try rebooting..."
             proxy_stop;
             sudo sockd -D
             # systemctl restart danted.service
             echo "PROXY 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩."
         else
-            echo "进程 $proxy_process 未运行，尝试启动..."
+            echo "Process $proxy_process is not running，try booting..."
             sudo sockd -D
             # systemctl start danted.service
             echo "PROXY 启动成功, ଘ(੭ˊᵕˋ)੭* ੈ✩."
