@@ -17,8 +17,8 @@ vpn_start() {
     # sudo ipsec restart --nofork | grep --color=auto authentication
     # sudo ipsec restart 2>/dev/null
     sudo systemctl restart strongswan-starter.service
-    ## 手工指定 DNS 解析服务器
-    # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
+    # 配置 DNS 解析服务器
+    sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
 }
 
 vpn_status() {
@@ -31,6 +31,8 @@ vpn_stop() {
     echo "STOPPING VPN..."
     # sudo ipsec stop
     sudo systemctl stop strongswan-starter.service
+    # 卸载 DNS 解析服务器
+    sudo sed -i '/172.16.9.3/d' /etc/resolv.conf
 }
 
 proxy_start() {
