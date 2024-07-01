@@ -1,6 +1,6 @@
 #!/bin/sh
 
-default_connection=Sitech-HN
+default_connection=corp-HN
 
 ## Bring up default connection or the Link Connection your specified in the shell script argument.
 if [[ $1 == '' ]]; then

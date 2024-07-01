@@ -1,12 +1,12 @@
 [connection]
-id=Sitech-HN
+id=corp-HN
 uuid=b0673d26-419b-4d37-9661-167fc76d2fb1
 type=wifi
 interface-name=wlp4s0
 
 [wifi]
 mode=infrastructure
-ssid=Sitech-HN
+ssid=corp-HN
 
 [wifi-security]
 auth-alg=open

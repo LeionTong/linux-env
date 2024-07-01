@@ -1,5 +1,5 @@
 [connection]
-id=sitech-vpn
+id=corp-vpn
 uuid=c1627c32-e275-492a-ab69-76b972de73e0
 type=vpn
 timestamp=1656061060

@@ -1,5 +1,5 @@
 [connection]
-id=sitech-ethernet-wifi1
+id=corp-ethernet-wifi1
 uuid=645385d4-31fc-4250-977f-3c9ceea865ec
 type=ethernet
 timestamp=1660727783

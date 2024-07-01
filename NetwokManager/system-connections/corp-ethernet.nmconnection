@@ -1,5 +1,5 @@
 [connection]
-id=sitech-ethernet
+id=corp-ethernet
 uuid=c06caff9-5247-4452-8317-80e5ca8f9e42
 type=ethernet
 timestamp=1661477150
