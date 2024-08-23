@@ -1,9 +1,0 @@
-#!/bin/sh
-
-hexo clean && hexo g -d
-hexo clean
-
-git checkout master
-git add .
-git commit -m 'by .autohexogdc.'
-git push
