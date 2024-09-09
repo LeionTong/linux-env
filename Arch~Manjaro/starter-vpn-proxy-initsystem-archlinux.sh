@@ -140,7 +140,7 @@ proxy_status() {
     # echo "STATUS of PROXY..."
     # systemctl status sockd.service
     echo -e "\n\nSTATUS of PROXY LOG..."
-    sudo tail /var/log/sockd.log
+    sudo tail -1 /var/log/sockd.log
 }
 
 read -p "请输入要执行的操作: start(1), status(2), stop(3): " action
