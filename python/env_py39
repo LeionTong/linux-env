@@ -1,0 +1,29 @@
+#!/bin/bash
+# filename: env_py39
+# description: create and|or activate virtual environment for python3.9
+# Usage: . env_py39
+
+PYTHON_BIN=/usr/bin/python3.9
+VENV=.venv_py39
+VENV_DIR=$(pwd)/$VENV  # 这个变量设置将用来在当前目录下创建 $VENV 目录，作为虚拟环境的根目录。
+
+venv_create() {
+    $PYTHON_BIN -m venv $VENV_DIR
+    echo "Virtual environment $VENV_DIR created."
+}
+
+venv_activate() {
+    source $VENV_DIR/bin/activate
+    cd $VENV_DIR/bin
+    $VENV_DIR/bin/python -V
+    $VENV_DIR/bin/pip -V
+    echo "Virtual environment $VENV_DIR activated."
+}
+
+if [ -d "$VENV_DIR" ]; then
+    echo "Virtual environment $VENV_DIR already exists. Activating..."
+    venv_activate
+else
+    echo "Virtual environment $VENV_DIR does not exist. Creating..."
+    venv_create && venv_activate
+fi
