@@ -56,7 +56,6 @@ vpn_start() {
         sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
         # sudo ipsec restart --nofork | grep --color=auto authentication
         sudo ipsec restart
-        # sudo systemctl restart strongswan-starter.service
         # 手工指定 DNS 解析服务器
         # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
         echo -e "\033[32mVPN 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
@@ -65,7 +64,6 @@ vpn_start() {
         sudo sed -i 's/: XAUTH.*/: XAUTH  '"$vpn_auth_code"'/g' /etc/ipsec.secrets
         # sudo ipsec start --nofork | grep --color=auto authentication
         sudo ipsec start
-        # sudo systemctl restart strongswan-starter.service
         # 手工指定 DNS 解析服务器
         # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
         # echo "VPN 启动成功, Yଘ(੭ˊᵕˋ)੭* ੈ✩"
@@ -77,11 +75,10 @@ vpn_stop() {
     # 获取进程id
     vpn_process_id=`ps aux | grep $vpn_process | grep -v grep | awk '{print$2}'`
     # 检查进程id是否存在, 若存在(非空)则停掉
-    if [ -n "$vpn_process_id" ]; then
+    if [[ -n "$vpn_process_id" ]]; then
         echo "STOPPING VPN..."
         sudo ipsec stop
-        # sudo systemctl stop strongswan-starter.service
-        echo -e "\033[35mVPN 进程已停止。\033[0m"
+        echo -e "\033[35m进程 $vpn_process 已停止。\033[0m"
     else
         echo -e "\033[35m进程 $vpn_process 未运行, 无需停止。\033[0m"
     fi
@@ -89,34 +86,31 @@ vpn_stop() {
 
 vpn_status() {
     echo "STATUS of VPN..."
-    sudo ipsec status
-    # systemctl status strongswan-starter.service
+    is_process_running "$vpn_process" && sudo ipsec status || echo -e "\033[35m进程 $vpn_process 未运行。\033[0m"
+    echo -e "\n"
 }
 
 proxy_start() {
     echo "STARTING PROXY..."
 
     # 获取本机VPN的IPv4地址
-    IP_VPN=`ip a | awk 'NR==11 && /inet /{ip=$2} END{gsub(/\/.*$/, "", ip); print ip}'`
-    # 检查 IPv4 地址是否有效
-    if check_ipv4 "$IP_VPN"; then
+    IP_VPN=`sudo ipsec status | awk '/^ipsec-client\{1\}:/{getline; print $2}' | cut -d'/' -f1`
+    # 检查 IPv4 地址是否有效，既非空且符合 IPv4 地址格式
+    if [ -n "$IP_VPN" ] && check_ipv4 "$IP_VPN"; then
         # 检查进程是否存在
         if is_process_running "$proxy_process"; then
             echo "Process $proxy_process is running, try rebooting..."
-            proxy_stop;
-            sudo sockd -D
-            # systemctl restart danted.service
+            proxy_stop && sleep 1 && sudo sockd -D
             echo -e "\033[32mPROXY 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
         else
             echo "Process $proxy_process is not running, try booting..."
+            sudo sed -i "s/^external:.*/external: $IP_VPN/" /etc/sockd.conf
             sudo sockd -D
-            # systemctl start danted.service
             echo -e "\033[32mPROXY 启动成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
         fi
     else
         echo -e "\nIP address of VPN is not ok! Check the vpn_auth_code will help .^_^.\n"
-        vpn_stop;
-        proxy_stop;
+        exit 1
     fi
 }
 
@@ -124,26 +118,23 @@ proxy_stop() {
     # 获取进程id
     proxy_process_id=`ps aux | grep $proxy_process | grep -v grep | awk '{print$2}'`
     # 检查进程id是否存在, 若存在(非空)则停掉
-    if [ -n "$proxy_process_id" ]; then
+    if [[ -n "$proxy_process_id" ]]; then
         echo "STOPPING PROXY..."
         sudo kill -9 $proxy_process_id 2>/dev/null
         sudo rm -f /var/run/sockd.pid
-        echo -e "\033[35mPROXY 进程已停止。\033[0m" | sudo tee -a /var/log/sockd.log
-        # sudo systemctl stop danted.service
-        # echo "Succeed to stop proxy."
+        echo -e "\033[35m进程 $proxy_process 已停止。\033[0m"
     else
         echo -e "\033[35m进程 $proxy_process 未运行, 无需停止。\033[0m"
     fi
 }
 
 proxy_status() {
-    # echo "STATUS of PROXY..."
-    # systemctl status sockd.service
-    echo -e "\n\nSTATUS of PROXY LOG..."
-    sudo tail -1 /var/log/sockd.log
+    echo -e "STATUS of PROXY LOG..."
+    is_process_running "$proxy_process" && sudo tail -n 1 /var/log/sockd.log || echo -e "\033[35m进程 $proxy_process 未运行。\033[0m"
+    echo -e "\n"
 }
 
-read -p "请输入要执行的操作: start(1), status(2), stop(3): " action
+read -p "请输入要执行的操作: start(1), stop(2), status(3), restart_vpn(4), restart_proxy(5): " action
 
 case $action in
     start|1)
@@ -152,17 +143,22 @@ case $action in
         sleep 3
         proxy_start;
         ;;
-    status|2)
-        vpn_status;
-        echo -e "\n"
-        proxy_status;
-        ;;
-    stop|3)
+    stop|2)
         vpn_stop;
         proxy_stop;
         ;;
+    status|3)
+        vpn_status;
+        proxy_status;
+        ;;
+    restart_vpn|4)
+        vpn_start;
+        ;;
+    restart_proxy|5)
+        proxy_start;
+        ;;
     *)
         echo "输入的操作无效! $action"
-        echo "Usage: $0 {start, status, stop or 1, 2, 3}."
+        echo "Usage: $0 {start, stop... or 1, 2...}."
         ;;
 esac
