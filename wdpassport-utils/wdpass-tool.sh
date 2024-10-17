@@ -51,7 +51,7 @@ function mount_part() {
     #检查挂载点是否存在。
     [[ ! -d "${Mount_Point}" ]] && echo "[leion:]The mount point ${Mount_Point} not exist!"
     #挂载硬盘分区。
-    sudo mount "${PART_DEV}" "${Mount_Point}" 
+    sudo mount "${PART_DEV}" "${Mount_Point}" -o uid=$USER,gid=$USER
     if [ $? == 0 ]; then
         echo "[leion:]The disk partition is mounted on ${Mount_Point}"
     else
