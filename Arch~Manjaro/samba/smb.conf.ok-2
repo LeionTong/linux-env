@@ -1,0 +1,50 @@
+## https://zhuanlan.zhihu.com/p/433678089
+[global]
+   # 工作组
+   workgroup = WORKGROUP
+   # 这个貌似是服务器的介绍字符串
+   server string = Manjaro SMB Server
+   # 这个名称将会显示在我们的本地网络当中
+   netbios name = My-Manjaro
+   # 匿名访问需要
+   map to guest = bad user
+   # 设定匿名账户在本地的映射用户名为 nobody
+   guest account = nobody
+   # 日志文件位置
+   log file = /var/log/samba/%m.log
+   # 日志文件的大小， 单位是kb，设置为0就是不限制
+   max log size = 0
+   # 安全模式
+   security = user
+   # 关闭 dns 代理
+   dns proxy = no   
+
+[leion]
+   # 共享文件夹的简介字符串，在windows会鼠标悬浮时显示
+   comment = 管理员目录
+   path = /home/leion/
+   # 设置是否显示在共享文件中，与可访问性无关
+   browseable = yes
+   # SMB服务账户和Linux本地账户是绑定的，但是密码可以是不一样的
+   admin users = leion
+   # 设置文件夹可写
+   writeable = yes
+
+[videos]
+   comment = 音乐目录
+   path = /home/leion/Videos/
+   # 设置文件夹可以被匿名访问
+   public = yes
+   guest ok = yes
+   browseable = yes
+   # 设置文件夹不可写入
+   writeable = no
+
+[public]
+   comment = 公共目录（可匿名上传与下载）
+   path = /home/leion/Public/
+   public = yes
+   guest ok = yes
+   browseable = yes
+   # 不仅可以匿名访问，还可以匿名上传文件
+   writeable = yes
