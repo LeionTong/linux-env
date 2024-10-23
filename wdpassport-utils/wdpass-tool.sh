@@ -1,12 +1,14 @@
 # wdpass-tool.bash
-# 
+#
 :<<!
 Usage:
-sudo bash -c /PATH/TO/THIS_SCRIPT.bash 
+sudo bash -c /PATH/TO/THIS_SCRIPT.bash
 必须将 wdpass.bin 文件放置于该脚本同一目录。
 !
 
 #!/bin/bash
+set -eux -o pipefail
+# set -x
 
 export Work_Dir=`dirname $0`
 readonly Mount_Point=$HOME/WD_My_Passport_Ultra/
@@ -25,7 +27,7 @@ function get_disk() {
     if [[ -n "${DISK_ID}" && -b "${DISK_DEV}" ]]; then
         echo "[leion:]The disk is ${DISK_DEV}"
     elif [[ -z ${DISK_ID} || ! -b ${DISK_DEV} ]]; then
-        echo "[leion:]"DISK_ID" not fond!"
+        echo "[leion:]The "DISK_ID" not fond!"
         exit 41
     fi
 }
@@ -51,7 +53,7 @@ function mount_part() {
     #检查挂载点是否存在。
     [[ ! -d "${Mount_Point}" ]] && echo "[leion:]The mount point ${Mount_Point} not exist!"
     #挂载硬盘分区。
-    sudo mount "${PART_DEV}" "${Mount_Point}" -o uid=$USER,gid=$USER
+    sudo mount "${PART_DEV}" "${Mount_Point}" -o defaults,noatime,uid=$USER,gid=$USER,dmask=022,fmask=133
     if [ $? == 0 ]; then
         echo "[leion:]The disk partition is mounted on ${Mount_Point}"
     else
