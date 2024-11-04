@@ -2,26 +2,32 @@
 
 MAJOR=3
 MINOR=9
+PATCH=9
+PREFIX=/usr/local/python$MAJOR.$MINOR
 
-tar -xvf Python-3.$MINOR.9.tar.xz
-mkdir /usr/local/python3.$MINOR
-cd Python-3.$MINOR.9
-./configure --prefix=/usr/local/python3.$MINOR/
+# 下载源码包
+# wget https://www.python.org/ftp/python/$MAJOR.$MINOR.$PATCH/Python-$MAJOR.$MINOR.$PATCH.tar.xz
+
+rm -rf $PREFIX
+mkdir $PREFIX
+tar -xvf Python-$MAJOR.$MINOR.$PATCH.tar.xz
+cd Python-$MAJOR.$MINOR.$PATCH
+./configure --prefix=$PREFIX/
 make -j $(nproc)
 make altinstall
 
-# 必须(创建 /usr/bin/python3.$MINOR、/usr/bin/pip3.$MINOR)
-ln -svf /usr/local/python3.$MINOR/bin/python3.$MINOR /usr/bin/python3.$MINOR
-ln -svf /usr/local/python3.$MINOR/bin/pip3.$MINOR /usr/bin/pip3.$MINOR
+# 必须(创建 /usr/bin/python$MAJOR.$MINOR、/usr/bin/pip$MAJOR.$MINOR)
+ln -svf $PREFIX/bin/python$MAJOR.$MINOR /usr/bin/python$MAJOR.$MINOR
+ln -svf $PREFIX/bin/pip$MAJOR.$MINOR /usr/bin/pip$MAJOR.$MINOR
 
 # 可选(创建 /usr/bin/python、/usr/bin/pip)
-mv /usr/bin/python{,.ori} || ln -svf python3.$MINOR /usr/bin/python
-mv /usr/bin/pip{,.ori} || ln -svf pip3.$MINOR /usr/bin/pip
+mv /usr/bin/python{,.ori} || ln -svf python$MAJOR.$MINOR /usr/bin/python
+mv /usr/bin/pip{,.ori} || ln -svf pip$MAJOR.$MINOR /usr/bin/pip
 
 # 可选(创建 /usr/bin/python3、/usr/bin/pip3)
 # 注意：会影响dnf、yum、yum-config-manager等命令: grep python `which dnf`.
-mv /usr/bin/python3{,.ori} || ln -svf python3.$MINOR /usr/bin/python3
-mv /usr/bin/pip3{,.ori} || ln -svf pip3.$MINOR /usr/bin/pip3
+mv /usr/bin/python3{,.ori} || ln -svf python$MAJOR.$MINOR /usr/bin/python3
+mv /usr/bin/pip3{,.ori} || ln -svf pip$MAJOR.$MINOR /usr/bin/pip3
 
 
 # 检查版本
@@ -30,5 +36,5 @@ pip --version
 python3 --version
 pip3 --version
 ## 检查软链接指向
-ll /usr/bin/{python,python3,python3.$MINOR,pip,pip3,pip3.$MINOR}
+ll /usr/bin/{python,python3,python$MAJOR.$MINOR,pip,pip3,pip$MAJOR.$MINOR}
 ll /usr/bin/{python*,pip*}
