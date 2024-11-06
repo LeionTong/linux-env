@@ -136,11 +136,13 @@ proxy_start() {
         if is_process_running "$proxy_process_name"; then
             echo "Process $proxy_process_name is running, try rebooting..."
             proxy_stop && sleep 1 && sudo sockd -D
+            sleep 1
             is_process_running "$proxy_process_name" && echo -e "\033[32mPROXY 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
         else
             echo "Process $proxy_process_name is not running, try booting..."
             sudo sed -i "s/^external:.*/external: $IP_VPN/" $proxy_config_file
             sudo $proxy_process_name -D
+            sleep 1
             is_process_running "$proxy_process_name" && echo -e "\033[32mPROXY 启动成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
         fi
     else
