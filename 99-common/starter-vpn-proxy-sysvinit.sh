@@ -94,29 +94,34 @@ vpn_start() {
         # sudo ipsec restart --nofork | grep --color=auto authentication
         sudo ipsec restart
         sleep 1
-        is_process_running "$vpn_process_name" && echo -e "\033[32mVPN 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
     else
         echo "Process $vpn_process_name is not running, try booting..."
         # sudo ipsec start --nofork | grep --color=auto authentication
         sudo ipsec start
         sleep 1
-        is_process_running "$vpn_process_name" && echo -e "\033[32mVPN 启动成功, Yଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
     fi
+
+    sleep 1
+
+    if is_process_running "$vpn_process_name"; then
+        echo "Process '$vpn_process_name' is running."
+    else
+        echo "Process '$vpn_process_name' is not running."
+    fi
+
     # 手工指定 DNS 解析服务器
     # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
 }
 
 vpn_stop() {
     # 获取进程id
-    vpn_process_id=`ps aux | grep $vpn_process_name | grep -v grep | awk '{print$2}'`
+    # vpn_process_id=`ps aux | grep $vpn_process_name | grep -v grep | awk '{print$2}'`
     # 检查进程id是否存在, 若存在(非空)则停掉
-    if [[ -n "$vpn_process_id" ]]; then
+    # if [[ -n "$vpn_process_id" ]]; then
         echo "STOPPING VPN..."
         sudo ipsec stop
-        echo -e "\033[35m进程 $vpn_process_name 已停止。\033[0m"
-    else
-        echo -e "\033[35m进程 $vpn_process_name 未运行, 无需停止。\033[0m"
-    fi
+    # fi
+    is_process_running "$vpn_process_name" || echo -e "\033[32mSTOPPING VPN...Done!\033[0m"
 }
 
 vpn_status() {
@@ -125,44 +130,58 @@ vpn_status() {
     echo -e "\n"
 }
 
+get_vpn_ip() {
+    # 使用while循环不断尝试获取有效的VPN IP地址，直到成功为止
+    local max_attempts=3
+    local attempt=0
+    while [[ $attempt -lt $max_attempts ]]
+    do
+        # 获取本机VPN的IPv4地址
+        IP_VPN=$(sudo ipsec status | awk '/^ipsec-client/&&/===/{getline; print $2}' | cut -d'/' -f1)
+        if check_ipv4 "$IP_VPN"; then
+            break
+        fi
+        ((attempt++))
+        sleep 1
+    done
+    if [[ $attempt -eq $max_attempts ]]; then
+        echo -e "\033[35m尝试 ${max_attempts} 秒后依然无法获取到正确的 VPN IP 地址。\033[0m"
+        echo -e "\033[35m请检查 VPN 是否正常工作, Check the vpn_auth_code will help .^_^.\033[0m"
+        # vpn_stop
+        exit 1
+    fi
+    echo -e "\033[1;33mVPN IP: $IP_VPN\033[0m"
+}
+
 proxy_start() {
     echo "STARTING PROXY..."
 
-    # 获取本机VPN的IPv4地址
-    IP_VPN=`sudo ipsec status | awk '/^ipsec-client\{1\}:/{getline; print $2}' | cut -d'/' -f1`
-    # 检查 IPv4 地址是否有效，既非空且符合 IPv4 地址格式
-    if [ -n "$IP_VPN" ] && check_ipv4 "$IP_VPN"; then
-        # 检查进程是否存在
-        if is_process_running "$proxy_process_name"; then
-            echo "Process $proxy_process_name is running, try rebooting..."
-            proxy_stop && sleep 1 && sudo sockd -D
-            sleep 1
-            is_process_running "$proxy_process_name" && echo -e "\033[32mPROXY 重启成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
-        else
-            echo "Process $proxy_process_name is not running, try booting..."
-            sudo sed -i "s/^external:.*/external: $IP_VPN/" $proxy_config_file
-            sudo $proxy_process_name -D
-            sleep 1
-            is_process_running "$proxy_process_name" && echo -e "\033[32mPROXY 启动成功, ଘ(੭ˊᵕˋ)੭* ੈ✩.\033[0m"
-        fi
+    if is_process_running "$proxy_process_name"; then
+        echo "Process $proxy_process_name is running, try rebooting..."
+        proxy_stop && sleep 1 && sudo sockd -D
     else
-        echo -e "\nIP address of VPN is not ok! Check the vpn_auth_code will help .^_^.\n"
-        exit 1
+        echo "Process $proxy_process_name is not running, try booting..."
+        sudo $proxy_process_name -D
+    fi
+
+    sleep 1
+
+    if is_process_running "$proxy_process_name"; then
+        echo "Process '$proxy_process_name' is running."
+    else
+        echo "Process '$proxy_process_name' is not running."
     fi
 }
 
 proxy_stop() {
-    # 获取进程id
-    proxy_process_id=`ps aux | grep $proxy_process_name | grep -v grep | awk '{print$2}'`
-    # 检查进程id是否存在, 若存在(非空)则停掉
-    if [[ -n "$proxy_process_id" ]]; then
+    # 检查进程是否存在, 若存在则停掉
+    # if is_process_running "$proxy_process_name"; then
         echo "STOPPING PROXY..."
+        proxy_process_id=`ps aux | grep $proxy_process_name | grep -v grep | awk '{print$2}'`
         sudo kill -9 $proxy_process_id 2>/dev/null
         sudo rm -f /var/run/sockd.pid
-        echo -e "\033[35m进程 $proxy_process_name 已停止。\033[0m"
-    else
-        echo -e "\033[35m进程 $proxy_process_name 未运行, 无需停止。\033[0m"
-    fi
+    # fi
+    is_process_running "$proxy_process_name" || echo -e "\033[32mSTOPPING PROXY...Done!\033[0m"
 }
 
 proxy_status() {
@@ -177,6 +196,8 @@ case $action in
     start|1)
         get_vpn_auth_code $1
         vpn_start;
+        get_vpn_ip
+        sudo sed -i "s/^external:.*/external: $IP_VPN/" $proxy_config_file
         proxy_start;
         ;;
     stop|2)
