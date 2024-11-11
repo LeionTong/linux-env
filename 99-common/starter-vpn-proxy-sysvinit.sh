@@ -188,7 +188,7 @@ proxy_stop() {
 }
 
 proxy_status() {
-    echo -e "STATUS of PROXY LOG..."
+    echo -e "STATUS of PROXY..."
     is_process_running "$proxy_process_name" && sudo tail -n 1 /var/log/sockd.log || echo -e "\033[35m进程 $proxy_process_name 未运行。\033[0m"
     echo -e "\n"
 }
