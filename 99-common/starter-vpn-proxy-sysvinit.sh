@@ -122,6 +122,9 @@ vpn_stop() {
         sudo ipsec stop
     # fi
     is_process_running "$vpn_process_name" || echo -e "\033[32mSTOPPING VPN...Done!\033[0m"
+
+    # 删除手工指定的 DNS 解析服务器
+    # sudo sed -i '/nameserver 172.16.9.3/d' /etc/resolv.conf
 }
 
 vpn_status() {
