@@ -1,3 +1,4 @@
+# usage: ansible-playbook file.yml
 ---
 - name: Debug something
   hosts: localhost
