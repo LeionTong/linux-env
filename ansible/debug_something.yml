@@ -1,0 +1,13 @@
+---
+- name: Debug something
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+  - name: debug ansible_facts vars
+    debug:
+     msg: "{{ item }}"
+    with_items:
+      - "{{ ansible_facts['distribution'] }}"
+      - "{{ ansible_facts['distribution_version'] }}"
+      - "{{ ansible_facts['distribution_major_version'] }}"
+      - "{{ ansible_facts['os_family'] }}"
