@@ -112,7 +112,7 @@ vpn_start() {
     fi
 
     # 手工指定 DNS 解析服务器
-    # sudo sed -i '1i\nameserver 172.16.9.3' /etc/resolv.conf
+    # sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
 }
 
 vpn_stop() {
@@ -203,7 +203,7 @@ proxy_status() {
     echo -e "\n"
 }
 
-read -p "请输入要执行的操作: start(1), stop(2), status(3), restart_vpn(4), restart_proxy(5): " action
+read -p "请输入要执行的操作: start(1), stop(2), status(3), restart_vpn(4), restart_proxy(5), dns_nameserver_add(6), dns_nameserver_remove(7): " action
 
 case $action in
     start|1)
@@ -226,7 +226,17 @@ case $action in
         vpn_start;
         ;;
     restart_proxy|5)
+        get_vpn_ip
+        sudo sed -i "s/^external:.*/external: $IP_VPN/" $proxy_config_file
         proxy_start;
+        ;;
+    dns_nameserver_add|6)
+        # 添加手工指定 DNS 解析服务器
+        sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+        ;;
+    dns_nameserver_remove|7)
+        # 删除手工指定的 DNS 解析服务器
+        sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf
         ;;
     *)
         echo "输入的操作无效! $action"
