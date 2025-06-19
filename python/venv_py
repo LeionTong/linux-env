@@ -1,14 +1,13 @@
 #!/bin/bash
 # filename: venv_py
-# description: create and|or activate virtual environment for python
+# description: create and|or activate virtual environment for python3
 # Usage: . venv_py
-# 脚本等同于执行命令：python3.10 -m venv $(pwd)/.venv_py3.10 && source $(pwd)/.venv_py3.10/bin/activate
-# 若要创建虚拟环境前清理目标目录，加上选项 --clear。
+# 脚本等同于执行命令：python3 -m venv venv_py && source venv_py/bin/activate
+# 若要创建虚拟环境前清理目标目录: python3 -m venv venv_py --clear
 
-MAJOR=3
-MINOR=10
-PYTHON_BIN=/usr/bin/python$MAJOR.$MINOR
-VENV=.venv_py$MAJOR.$MINOR
+# 设置 Python 解释器路径和虚拟环境目录
+PYTHON_BIN=/usr/bin/python3
+VENV=venv_py
 VENV_DIR=$(pwd)/$VENV  # 这个变量设置将用来在当前目录下创建 $VENV 目录，作为虚拟环境的根目录。
 
 venv_create() {
@@ -18,10 +17,10 @@ venv_create() {
 venv_activate() {
     source $VENV_DIR/bin/activate
     echo "Virtual environment $VENV_DIR activated."
-    echo "Python is: `which python$MAJOR.$MINOR`"
-    echo "Pip is: `which pip$MAJOR.$MINOR`"
-    python$MAJOR.$MINOR -V 
-    pip$MAJOR.$MINOR -V
+    echo "Python is: `which python3`"
+    echo "Pip is: `which pip3`"
+    python3 -V 
+    pip3 -V
 }
 
 if [ -d "$VENV_DIR" ]; then
