@@ -2,11 +2,11 @@
 # filename: venv_py
 # description: create and|or activate virtual environment for python
 # Usage: . venv_py
-# 脚本等同于执行命令：python3.9 -m venv $(pwd)/.venv_py3.9 && source $(pwd)/.venv_py3.9/bin/activate
+# 脚本等同于执行命令：python3.10 -m venv $(pwd)/.venv_py3.10 && source $(pwd)/.venv_py3.10/bin/activate
 # 若要创建虚拟环境前清理目标目录，加上选项 --clear。
 
 MAJOR=3
-MINOR=9
+MINOR=10
 PYTHON_BIN=/usr/bin/python$MAJOR.$MINOR
 VENV=.venv_py$MAJOR.$MINOR
 VENV_DIR=$(pwd)/$VENV  # 这个变量设置将用来在当前目录下创建 $VENV 目录，作为虚拟环境的根目录。
