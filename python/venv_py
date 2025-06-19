@@ -7,8 +7,7 @@
 
 # 设置 Python 解释器路径和虚拟环境目录
 PYTHON_BIN=/usr/bin/python3
-VENV=venv_py
-VENV_DIR=$(pwd)/$VENV  # 这个变量设置将用来在当前目录下创建 $VENV 目录，作为虚拟环境的根目录。
+VENV_DIR=venv_py
 
 venv_create() {
     $PYTHON_BIN -m venv $VENV_DIR
