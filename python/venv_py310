@@ -1,13 +1,13 @@
 #!/bin/bash
-# filename: venv_py
-# description: create and|or activate virtual environment for python3
-# Usage: . venv_py
+# filename: venv_py310
+# description: create and|or activate virtual environment for python
+# Usage: . venv_py310
 # 脚本等同于执行命令：python3 -m venv venv_py && source venv_py/bin/activate
 # 若要创建虚拟环境前清理目标目录: python3 -m venv venv_py --clear
 
 # 设置 Python 解释器路径和虚拟环境目录
-PYTHON_BIN=/usr/bin/python3
-VENV=.venv_py
+PYTHON_BIN=/usr/bin/python3.10
+VENV=.venv_py310
 VENV_DIR=$(pwd)/$VENV
 
 venv_create() {
