@@ -1,0 +1,34 @@
+<domain type='kvm'>
+  <name>test-vm</name>
+  <uuid>12345678-1234-1234-1234-123456789abc</uuid>
+  <memory unit='KiB'>1048576</memory>
+  <currentMemory unit='KiB'>1048576</currentMemory>
+  <vcpu>1</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-2.11'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+  </features>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='/root/kvm/cirros-0.6.3-x86_64-disk.img'/>
+      <target dev='hda' bus='ide'/>
+    </disk>
+    <interface type='bridge'>
+      <source bridge='br-kvm-test'/>
+      <model type='virtio'/>
+    </interface>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    <graphics type='vnc' port='-1' autoport='yes'/>
+  </devices>
+</domain>

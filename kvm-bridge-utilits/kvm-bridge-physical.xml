@@ -1,0 +1,6 @@
+<network>
+  <name>kvm-bridge-physical</name>
+  <uuid>87654321-4321-4321-4321-cba987654321</uuid>
+  <forward mode='bridge'/>
+  <bridge name='br-physical' stp='on' delay='0'/>
+</network>
