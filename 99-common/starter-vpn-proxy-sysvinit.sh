@@ -11,41 +11,54 @@
 
 vpn_process_name="charon"
 vpn_secret_file="/etc/ipsec.secrets"
+PROXY_IP=127.0.0.1
 proxy_port="1080"
 # 确定 PROXY 进程名称
 if command -v danted &> /dev/null; then
     proxy_process_name="danted"
     proxy_config_file="/etc/danted.conf"
-    # proxy_service_name="danted.service"
+    proxy_log_file=/var/log/danted.log
 elif command -v sockd &> /dev/null; then
     proxy_process_name="sockd"
     proxy_config_file="/etc/sockd.conf"
-    # proxy_service_name="sockd.service"
+    proxy_log_file=/var/log/sockd.log
 fi
 
 # 定义函数：检查进程是否存在
 is_process_running() {
     local process_name="$1"
-    # 使用pgrep查找进程, 如果找到则返回0（成功）, 否则返回非0（失败）
-    pgrep "$process_name" > /dev/null 2>&1
-    return $?
+    
+    # 检查参数是否提供
+    if [ -z "$process_name" ]; then
+        echo "错误：请提供进程名称作为参数"
+        return 1
+    fi
+    
+    # 使用pgrep查找进程
+    if sudo pgrep "$process_name" > /dev/null 2>&1; then
+        echo "$process_name is running."
+        return 0
+    else
+        echo "$process_name is not running."
+        return 1
+    fi
 }
 
-# 定义函数：kill进程
+# 定义函数：杀死进程
 kill_process() {
     local process_name="$1"
     # 检查进程是否存在
     if is_process_running "$process_name"; then
         echo "Killing $process_name..."
         # 使用pkill命令杀死进程
-        pkill "$process_name"
+        sudo pkill -x "$process_name"
         # 检查进程是否被成功杀死
-        if is_process_running "$process_name"; then
+        if is_process_running "$process_name" $>/dev/null; then
             echo "Failed to kill $process_name"
-            exit 1
+            return 1
+        else
+            echo "Succeed to kill $process_name"
         fi
-    else
-        echo "$process_name is not running"
     fi
 }
 
@@ -104,9 +117,9 @@ vpn_start() {
     sleep 1
 
     if is_process_running "$vpn_process_name"; then
-        echo "Process '$vpn_process_name' is running."
+        echo "Succeed to run '$vpn_process_name'."
     else
-        echo "Process '$vpn_process_name' is not running."
+        echo "Failed to run '$vpn_process_name'."
     fi
 
     # 手工指定 DNS 解析服务器
@@ -114,14 +127,10 @@ vpn_start() {
 }
 
 vpn_stop() {
-    # 获取进程id
-    # vpn_process_id=`ps aux | grep $vpn_process_name | grep -v grep | awk '{print$2}'`
-    # 检查进程id是否存在, 若存在(非空)则停掉
-    # if [[ -n "$vpn_process_id" ]]; then
-        echo "STOPPING VPN..."
-        sudo ipsec stop
-    # fi
-    is_process_running "$vpn_process_name" || echo -e "\033[32mSTOPPING VPN...Done!\033[0m"
+    is_process_running "$vpn_process_name"
+    echo "STOPPING VPN..."
+    sudo ipsec stop
+    is_process_running "$vpn_process_name" &>/dev/null || echo -e "\033[32mSTOPPING VPN...Done!\033[0m"
 
     # 删除手工指定的 DNS 解析服务器
     # sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf
@@ -130,7 +139,6 @@ vpn_stop() {
 vpn_status() {
     echo "STATUS of VPN..."
     is_process_running "$vpn_process_name" && sudo ipsec status || echo -e "\033[35m进程 $vpn_process_name 未运行。\033[0m"
-    echo -e "\n"
 }
 
 get_vpn_ip() {
@@ -151,7 +159,7 @@ get_vpn_ip() {
         echo -e "\033[35m尝试 ${max_attempts} 秒后依然无法获取到正确的 VPN IP 地址。\033[0m"
         echo -e "\033[35m请检查 VPN 是否正常工作, Check the vpn_auth_code will help .^_^.\033[0m"
         # vpn_stop
-        exit 1
+        return 1
     fi
     echo -e "\033[1;33mVPN IP: $IP_VPN\033[0m"
 }
@@ -159,9 +167,11 @@ get_vpn_ip() {
 proxy_start() {
     echo "STARTING PROXY..."
 
+    sudo sed -i "s/^external:.*/external: $PROXY_IP/" $proxy_config_file
+
     if is_process_running "$proxy_process_name"; then
         echo "Process $proxy_process_name is running, try rebooting..."
-        proxy_stop && sleep 1 && sudo sockd -D
+        proxy_stop && sleep 1 && sudo $proxy_process_name -D
     else
         echo "Process $proxy_process_name is not running, try booting..."
         sudo $proxy_process_name -D
@@ -170,63 +180,60 @@ proxy_start() {
     sleep 1
 
     if is_process_running "$proxy_process_name"; then
-        echo "Process '$proxy_process_name' is running."
+        echo "Succeed to run '$proxy_process_name'."
     else
-        echo "Process '$proxy_process_name' is not running."
+        echo "Failed to run '$proxy_process_name'."
     fi
 }
 
 proxy_stop() {
-    # 检查进程是否存在, 若存在则停掉
-    # if is_process_running "$proxy_process_name"; then
-        echo "STOPPING PROXY..."
-        proxy_process_id=`ps aux | grep $proxy_process_name | grep -v grep | awk '{print$2}'`
-        sudo kill -9 $proxy_process_id 2>/dev/null
-        sudo rm -f /var/run/sockd.pid
-    # fi
-    is_process_running "$proxy_process_name" || echo -e "\033[32mSTOPPING PROXY...Done!\033[0m"
+    is_process_running "$proxy_process_name"
+    echo "STOPPING PROXY..."
+    # kill_process $proxy_process_name
+    sudo pkill -x $proxy_process_name
+    sudo rm -f /var/run/sockd.pid
+    is_process_running "$proxy_process_name" &>/dev/null || echo -e "\033[32mSTOPPING PROXY...Done!\033[0m"
 }
 
 proxy_status() {
     echo -e "STATUS of PROXY..."
-    is_process_running "$proxy_process_name" && sudo tail -n 1 /var/log/sockd.log || echo -e "\033[35m进程 $proxy_process_name 未运行。\033[0m"
-    echo -e "\n"
+    is_process_running "$proxy_process_name" && sudo tail -n 1 $proxy_log_file || echo -e "\033[35m进程 $proxy_process_name 未运行。\033[0m"
 }
 
-read -p "请输入要执行的操作: start(1), stop(2), status(3), restart_vpn(4), restart_proxy(5), dns_nameserver_add(6), dns_nameserver_remove(7): " action
+read -p "请输入要执行的操作: start(1), stop(2), restart_vpn(3), restart_proxy(4), dns_nameserver_add(5), dns_nameserver_remove(6), status(7): " action
 
 case $action in
     start|1)
         get_vpn_auth_code $1
-        vpn_start;
-        get_vpn_ip
-        sudo sed -i "s/^external:.*/external: $IP_VPN/" $proxy_config_file
-        proxy_start;
+        vpn_start
+        get_vpn_ip || exit 1
+        PROXY_IP=$IP_VPN
+        proxy_start
         ;;
     stop|2)
-        vpn_stop;
-        proxy_stop;
+        vpn_stop
+        proxy_stop
         ;;
-    status|3)
-        vpn_status;
-        proxy_status;
-        ;;
-    restart_vpn|4)
+    restart_vpn|3)
         get_vpn_auth_code $1
-        vpn_start;
+        vpn_start
         ;;
-    restart_proxy|5)
-        get_vpn_ip
-        sudo sed -i "s/^external:.*/external: $IP_VPN/" $proxy_config_file
-        proxy_start;
+    restart_proxy|4)
+        get_vpn_ip || exit 1
+        PROXY_IP=$IP_VPN
+        proxy_start
         ;;
-    dns_nameserver_add|6)
+    dns_nameserver_add|5)
         # 添加手工指定 DNS 解析服务器
         sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
         ;;
-    dns_nameserver_remove|7)
+    dns_nameserver_remove|6)
         # 删除手工指定的 DNS 解析服务器
         sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf
+        ;;
+    status|7)
+        vpn_status
+        proxy_status
         ;;
     *)
         echo "输入的操作无效! $action"
