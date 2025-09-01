@@ -148,8 +148,9 @@ get_vpn_ip() {
     while [[ $attempt -lt $max_attempts ]]
     do
         # 获取本机VPN的IPv4地址
-        IP_VPN=$(sudo ipsec status | awk '/^ipsec-client/&&/===/{getline; print $2}' | cut -d'/' -f1)
-        if check_ipv4 "$IP_VPN"; then
+        VPN_IP=$(sudo ipsec status | awk '/^ipsec-client/&&/===/{getline; print $2}' | cut -d'/' -f1)
+        # VPN_IP=$(ip a s wlan0 | awk '/inet / && ++count == 2 {split($2, ip, "/"); print ip[1]}')
+        if check_ipv4 "$VPN_IP"; then
             break
         fi
         ((attempt++))
@@ -161,7 +162,7 @@ get_vpn_ip() {
         # vpn_stop
         return 1
     fi
-    echo -e "\033[1;33mVPN IP: $IP_VPN\033[0m"
+    echo -e "\033[1;33mVPN IP: $VPN_IP\033[0m"
 }
 
 proxy_start() {
@@ -207,7 +208,7 @@ case $action in
         get_vpn_auth_code $1
         vpn_start
         get_vpn_ip || exit 1
-        PROXY_IP=$IP_VPN
+        PROXY_IP=$VPN_IP
         proxy_start
         ;;
     stop|2)
@@ -220,7 +221,7 @@ case $action in
         ;;
     restart_proxy|4)
         get_vpn_ip || exit 1
-        PROXY_IP=$IP_VPN
+        PROXY_IP=$VPN_IP
         proxy_start
         ;;
     dns_nameserver_add|5)
