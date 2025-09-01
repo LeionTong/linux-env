@@ -54,10 +54,10 @@ kill_process() {
         sudo pkill -x "$process_name"
         # 检查进程是否被成功杀死
         if is_process_running "$process_name" $>/dev/null; then
-            echo "Failed to kill $process_name"
+            echo "FAILED to kill $process_name"
             return 1
         else
-            echo "Succeed to kill $process_name"
+            echo "SUCCEED to kill $process_name"
         fi
     fi
 }
@@ -103,12 +103,12 @@ vpn_start() {
 
     # 检查进程是否存在
     if  is_process_running "$vpn_process_name"; then
-        echo "Process $vpn_process_name is running, try rebooting..."
+        echo "try rebooting $vpn_process_name..."
         # sudo ipsec restart --nofork | grep --color=auto authentication
         sudo ipsec restart
         sleep 1
     else
-        echo "Process $vpn_process_name is not running, try booting..."
+        echo "try booting $vpn_process_name..."
         # sudo ipsec start --nofork | grep --color=auto authentication
         sudo ipsec start
         sleep 1
@@ -117,9 +117,9 @@ vpn_start() {
     sleep 1
 
     if is_process_running "$vpn_process_name"; then
-        echo "Succeed to run '$vpn_process_name'."
+        echo -e "\033[32mSUCCEED to run '$vpn_process_name'!\033[0m"
     else
-        echo "Failed to run '$vpn_process_name'."
+        echo "FAILED to run '$vpn_process_name'."
     fi
 
     # 手工指定 DNS 解析服务器
@@ -170,19 +170,19 @@ proxy_start() {
     sudo sed -i "s/^external:.*/external: $PROXY_IP/" $proxy_config_file
 
     if is_process_running "$proxy_process_name"; then
-        echo "Process $proxy_process_name is running, try rebooting..."
+        echo "try rebooting $proxy_process_name..."
         proxy_stop && sleep 1 && sudo $proxy_process_name -D
     else
-        echo "Process $proxy_process_name is not running, try booting..."
+        echo "try booting $proxy_process_name..."
         sudo $proxy_process_name -D
     fi
 
     sleep 1
 
     if is_process_running "$proxy_process_name"; then
-        echo "Succeed to run '$proxy_process_name'."
+        echo -e "\033[32mSUCCEED to run '$proxy_process_name'.!\033[0m"
     else
-        echo "Failed to run '$proxy_process_name'."
+        echo "FAILED to run '$proxy_process_name'."
     fi
 }
 
