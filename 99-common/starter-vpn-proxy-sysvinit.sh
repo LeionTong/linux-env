@@ -18,10 +18,12 @@ if command -v danted &> /dev/null; then
     proxy_process_name="danted"
     proxy_config_file="/etc/danted.conf"
     proxy_log_file=/var/log/danted.log
+    proxy_service_name="danted.service"
 elif command -v sockd &> /dev/null; then
     proxy_process_name="sockd"
     proxy_config_file="/etc/sockd.conf"
     proxy_log_file=/var/log/sockd.log
+    proxy_service_name="sockd.service"
 fi
 
 # 定义函数：检查进程是否存在
@@ -62,28 +64,55 @@ kill_process() {
     fi
 }
 
-# 定义函数：检查字符串是否为有效的IPv4地址
+# 定义函数：验证字符串是否为有效的IPv4地址
 check_ipv4() {
-    local ip=$1
-    # 使用正则表达式匹配IPv4地址
-    if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-        # 分割IP地址并检查每个部分是否在0-255范围内且无前导零
-        IFS='.' read -r -a ip_parts <<< "$ip"
-        for part in "${ip_parts[@]}"; do
-            if [[ $part -le 255 && $part -ge 0 ]]; then
-                # 检查是否有前导零
-                if [[ $part == 0* && $part != 0 ]]; then
-                    return 1 # 前导零, 无效
-                fi
-            else
-                return 1 # 超出范围, 无效
-            fi
-        done
-        return 0 # 所有条件满足, 有效
-    else
-        return 1 # 正则不匹配, 无效
-    fi
+    local ip="$1"
+    awk -v ip="$ip" 'BEGIN {
+        # 检查IP格式并分割为4个部分
+        if (ip ~ /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/) {
+            # 提取四个部分
+            a = substr(ip, RSTART, RLENGTH)
+            split(ip, parts, ".")
+            
+            # 检查每个部分
+            valid = 1
+            for (i=1; i<=4; i++) {
+                # 检查是否为数字且在0-255范围内
+                if (parts[i] !~ /^[0-9]+$/ || parts[i] < 0 || parts[i] > 255) {
+                    valid = 0
+                    break
+                }
+                # 检查前导零（长度大于1且以0开头）
+                if (length(parts[i]) > 1 && substr(parts[i], 1, 1) == "0") {
+                    valid = 0
+                    break
+                }
+            }
+            
+            exit !valid  # 有效则返回0，无效返回1
+        } else {
+            exit 1  # 格式不符，返回无效
+        }
+    }'
 }
+# # 测试示例
+# test_ips=(
+#     "192.168.1.1"   # 有效
+#     "0.0.0.0"       # 有效
+#     "255.255.255.255" # 有效
+#     "192.168.01.1"  # 无效（前导零）
+#     "256.0.0.1"     # 无效（超出范围）
+#     "192.168.1"     # 无效（格式错误）
+#     "192.168.1.1.1" # 无效（多余部分）
+#     "192.168.a.1"   # 无效（非数字）
+# )
+# for ip in "${test_ips[@]}"; do
+#     if check_ipv4 "$ip"; then
+#         echo "✅ $ip 是有效的IPv4地址"
+#     else
+#         echo "❌ $ip 是无效的IPv4地址"
+#     fi
+# done
 
 # 定义函数：从终端输入获取授权码
 get_vpn_auth_code() {
@@ -139,30 +168,51 @@ vpn_stop() {
 vpn_status() {
     echo "STATUS of VPN..."
     is_process_running "$vpn_process_name" && sudo ipsec status || echo -e "\033[35m进程 $vpn_process_name 未运行。\033[0m"
+    echo -e "\n"
+    cat /etc/resolv.conf
+    echo -e "\n"
 }
 
 get_vpn_ip() {
-    # 使用while循环不断尝试获取有效的VPN IP地址，直到成功为止
-    local max_attempts=3
+    # 获取有效的VPN IPv4地址，支持最大尝试次数
+    local max_attempts=9
     local attempt=0
-    while [[ $attempt -lt $max_attempts ]]
-    do
-        # 获取本机VPN的IPv4地址
-        VPN_IP=$(sudo ipsec status | awk '/^ipsec-client/&&/===/{getline; print $2}' | cut -d'/' -f1)
-        # VPN_IP=$(ip a s wlan0 | awk '/inet / && ++count == 2 {split($2, ip, "/"); print ip[1]}')
+    local retry_delay=1  # 重试延迟时间(秒)，便于调整
+    
+    # 循环尝试获取并验证VPN IP
+    while [[ $attempt -lt $max_attempts ]]; do
+        attempt=$((attempt + 1))  # 先递增计数，从1开始更直观
+        
+        # 获取本机VPN的IPv4地址（两种获取方式可根据兼容性选用）
+        # 方式1: 通过ipsec status获取
+        VPN_IP=$(sudo ipsec status | awk '/^ipsec-client/ && /===/ {getline; print $2}' | cut -d'/' -f1)
+        ## VPN_IP=`sudo ipsec status | awk '/ipsec-client\{1\}:/{getline; split($2, ip, "/"); print ip[1]}'`
+
+        # 方式2: 通过网络接口获取（需要时取消注释并注释方式1）
+        # INTERFACE_NAME=wlan0  # eth0|wlp4s0|wlan0|enp7s0|ens66|...
+        # VPN_IP=$(ip a s $INTERFACE_NAME | awk '/inet / && ++count == 2 {split($2, ip, "/"); print ip[1]}')
+        ## VPN_IP=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {print $4}' | cut -d'/' -f1`
+        ## VPN_IP=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {split($4, a, "/"); print a[1]}'`
+
+        # 验证IP有效性
         if check_ipv4 "$VPN_IP"; then
-            break
+            echo -e "\033[1;32m第 $attempt 次尝试成功获取VPN IP\033[0m"
+            echo -e "\033[1;33mVPN IP: $VPN_IP\033[0m"
+            return 0  # 成功获取有效IP，返回0
         fi
-        ((attempt++))
-        sleep 1
+        
+        # 未获取到有效IP且未达最大尝试次数时提示并重试
+        if [[ $attempt -lt $max_attempts ]]; then
+            echo -e "\033[1;36m第 $attempt 次尝试未获取到有效VPN IP，将在 $retry_delay 秒后重试...\033[0m"
+            sleep $retry_delay
+        fi
     done
-    if [[ $attempt -eq $max_attempts ]]; then
-        echo -e "\033[35m尝试 ${max_attempts} 秒后依然无法获取到正确的 VPN IP 地址。\033[0m"
-        echo -e "\033[35m请检查 VPN 是否正常工作, Check the vpn_auth_code will help .^_^.\033[0m"
-        # vpn_stop
-        return 1
-    fi
-    echo -e "\033[1;33mVPN IP: $VPN_IP\033[0m"
+    
+    # 达到最大尝试次数仍失败
+    echo -e "\033[31m错误: 尝试 $max_attempts 次后依然无法获取到正确的VPN IP地址\033[0m"
+    echo -e "\033[33m提示: 请检查VPN是否正常工作，查看vpn_auth_code可能会有帮助 ^_^\033[0m"
+    # vpn_stop  # 根据实际需求决定是否启用
+    return 1
 }
 
 proxy_start() {
@@ -172,7 +222,9 @@ proxy_start() {
 
     if is_process_running "$proxy_process_name"; then
         echo "try rebooting $proxy_process_name..."
-        proxy_stop && sleep 1 && sudo $proxy_process_name -D
+        proxy_stop
+        sleep 1
+        sudo $proxy_process_name -D
     else
         echo "try booting $proxy_process_name..."
         sudo $proxy_process_name -D
@@ -197,7 +249,7 @@ proxy_stop() {
 }
 
 proxy_status() {
-    echo -e "STATUS of PROXY..."
+    echo "STATUS of PROXY..."
     is_process_running "$proxy_process_name" && sudo tail -n 1 $proxy_log_file || echo -e "\033[35m进程 $proxy_process_name 未运行。\033[0m"
 }
 

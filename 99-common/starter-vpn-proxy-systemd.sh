@@ -9,18 +9,20 @@
 #    exit 1
 # fi
 
-vpn_secret_file="/etc/ipsec.secrets"
 vpn_process_name="charon"
+vpn_secret_file="/etc/ipsec.secrets"
 PROXY_IP=127.0.0.1
 proxy_port="1080"
 # 确定 PROXY 进程名称
 if command -v danted &> /dev/null; then
     proxy_process_name="danted"
     proxy_config_file="/etc/danted.conf"
+    proxy_log_file=/var/log/danted.log
     proxy_service_name="danted.service"
 elif command -v sockd &> /dev/null; then
     proxy_process_name="sockd"
     proxy_config_file="/etc/sockd.conf"
+    proxy_log_file=/var/log/sockd.log
     proxy_service_name="sockd.service"
 fi
 
@@ -142,33 +144,49 @@ vpn_status() {
     echo -e "\n"
     systemctl status strongswan-starter.service
     echo -e "\n"
+    cat /etc/resolv.conf
+    echo -e "\n"
 }
 
 get_vpn_ip() {
-    # 使用while循环不断尝试获取有效的VPN IP地址，直到成功为止
-    local max_attempts=3
+    local max_attempts=9
     local attempt=0
-    while [[ $attempt -lt $max_attempts ]]
-    do
-        # 获取本机VPN的IPv4地址
-        IP_VPN=$(sudo ipsec status | awk '/^ipsec-client/&&/===/{getline; print $2}' | cut -d'/' -f1)
-        # IP_VPN=`sudo ipsec status | awk '/ipsec-client\{1\}:/{getline; split($2, ip, "/"); print ip[1]}'`
-        # INTERFACE_NAME=wlp4s0  # eth0|wlp4s0|enp7s0|ens66|...
-        # IP_VPN=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {print $4}' | cut -d'/' -f1`
-        # IP_VPN=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {split($4, a, "/"); print a[1]}'`
-        if check_ipv4 "$IP_VPN"; then
-            break
+    local retry_delay=1  # 重试延迟时间(秒)，便于调整
+    
+    # 循环尝试获取并验证VPN IP
+    while [[ $attempt -lt $max_attempts ]]; do
+        attempt=$((attempt + 1))  # 先递增计数，从1开始更直观
+        
+        # 获取本机VPN的IPv4地址（两种获取方式可根据兼容性选用）
+        # 方式1: 通过ipsec status获取
+        VPN_IP=$(sudo ipsec status | awk '/^ipsec-client/ && /===/ {getline; print $2}' | cut -d'/' -f1)
+        ## VPN_IP=`sudo ipsec status | awk '/ipsec-client\{1\}:/{getline; split($2, ip, "/"); print ip[1]}'`
+
+        # 方式2: 通过网络接口获取（需要时取消注释并注释方式1）
+        # INTERFACE_NAME=wlan0  # eth0|wlp4s0|wlan0|enp7s0|ens66|...
+        # VPN_IP=$(ip a s $INTERFACE_NAME | awk '/inet / && ++count == 2 {split($2, ip, "/"); print ip[1]}')
+        ## VPN_IP=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {print $4}' | cut -d'/' -f1`
+        ## VPN_IP=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {split($4, a, "/"); print a[1]}'`
+
+        # 验证IP有效性
+        if check_ipv4 "$VPN_IP"; then
+            echo -e "\033[1;32m第 $attempt 次尝试成功获取VPN IP\033[0m"
+            echo -e "\033[1;33mVPN IP: $VPN_IP\033[0m"
+            return 0  # 成功获取有效IP，返回0
         fi
-        ((attempt++))
-        sleep 1
+        
+        # 未获取到有效IP且未达最大尝试次数时提示并重试
+        if [[ $attempt -lt $max_attempts ]]; then
+            echo -e "\033[1;36m第 $attempt 次尝试未获取到有效VPN IP，将在 $retry_delay 秒后重试...\033[0m"
+            sleep $retry_delay
+        fi
     done
-    if [[ $attempt -eq $max_attempts ]]; then
-        echo -e "\033[35m尝试 ${max_attempts} 秒后依然无法获取到正确的 VPN IP 地址。\033[0m"
-        echo -e "\033[35m请检查 VPN 是否正常工作, Check the vpn_auth_code will help .^_^.\033[0m"
-        # vpn_stop
-        return 1
-    fi
-    echo -e "\033[1;33mVPN IP: $IP_VPN\033[0m"
+    
+    # 达到最大尝试次数仍失败
+    echo -e "\033[31m错误: 尝试 $max_attempts 次后依然无法获取到正确的VPN IP地址\033[0m"
+    echo -e "\033[33m提示: 请检查VPN是否正常工作，查看vpn_auth_code可能会有帮助 ^_^\033[0m"
+    # vpn_stop  # 根据实际需求决定是否启用
+    return 1
 }
 
 proxy_start() {
@@ -201,9 +219,10 @@ proxy_stop() {
 }
 
 proxy_status() {
-    echo -e "STATUS of PROXY LOG..."
-    systemctl status $proxy_service_name
+    echo "STATUS of PROXY..."
+    is_process_running "$proxy_process_name" && sudo tail -n 1 $proxy_log_file || echo -e "\033[35m进程 $proxy_process_name 未运行。\033[0m"
     echo -e "\n"
+    systemctl status $proxy_service_name
 }
 
 read -p "请输入要执行的操作: start(1), stop(2), restart_vpn(3), restart_proxy(4), dns_nameserver_add(5), dns_nameserver_remove(6), status(7): " action
@@ -213,7 +232,7 @@ case $action in
         get_vpn_auth_code $1
         vpn_start
         get_vpn_ip || exit 1
-        PROXY_IP=$IP_VPN
+        PROXY_IP=$VPN_IP
         proxy_start
         ;;
     stop|2)
@@ -226,7 +245,7 @@ case $action in
         ;;
     restart_proxy|4)
         get_vpn_ip || exit 1
-        PROXY_IP=$IP_VPN
+        PROXY_IP=$VPN_IP
         proxy_start
         ;;
     dns_nameserver_add|5)
