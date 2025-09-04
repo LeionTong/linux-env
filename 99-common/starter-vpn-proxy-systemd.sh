@@ -64,27 +64,66 @@ kill_process() {
     fi
 }
 
-# 定义函数：检查字符串是否为有效的IPv4地址
+# 定义函数：验证字符串是否为有效的IPv4地址
 check_ipv4() {
-    local ip=$1
-    # 使用正则表达式匹配IPv4地址
-    if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-        # 分割IP地址并检查每个部分是否在0-255范围内且无前导零
-        IFS='.' read -r -a ip_parts <<< "$ip"
-        for part in "${ip_parts[@]}"; do
-            if [[ $part -le 255 && $part -ge 0 ]]; then
-                # 检查是否有前导零
-                if [[ $part == 0* && $part != 0 ]]; then
-                    return 1 # 前导零, 无效
-                fi
-            else
-                return 1 # 超出范围, 无效
-            fi
-        done
-        return 0 # 所有条件满足, 有效
-    else
-        return 1 # 正则不匹配, 无效
-    fi
+    local ip="$1"
+    awk -v ip="$ip" 'BEGIN {
+        # 检查IP格式并分割为4个部分
+        if (ip ~ /^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/) {
+            # 提取四个部分
+            a = substr(ip, RSTART, RLENGTH)
+            split(ip, parts, ".")
+            
+            # 检查每个部分
+            valid = 1
+            for (i=1; i<=4; i++) {
+                # 检查是否为数字且在0-255范围内
+                if (parts[i] !~ /^[0-9]+$/ || parts[i] < 0 || parts[i] > 255) {
+                    valid = 0
+                    break
+                }
+                # 检查前导零（长度大于1且以0开头）
+                if (length(parts[i]) > 1 && substr(parts[i], 1, 1) == "0") {
+                    valid = 0
+                    break
+                }
+            }
+            
+            exit !valid  # 有效则返回0，无效返回1
+        } else {
+            exit 1  # 格式不符，返回无效
+        }
+    }'
+}
+# # 测试示例
+# test_ips=(
+#     "192.168.1.1"   # 有效
+#     "0.0.0.0"       # 有效
+#     "255.255.255.255" # 有效
+#     "192.168.01.1"  # 无效（前导零）
+#     "256.0.0.1"     # 无效（超出范围）
+#     "192.168.1"     # 无效（格式错误）
+#     "192.168.1.1.1" # 无效（多余部分）
+#     "192.168.a.1"   # 无效（非数字）
+# )
+# for ip in "${test_ips[@]}"; do
+#     if check_ipv4 "$ip"; then
+#         echo "✅ $ip 是有效的IPv4地址"
+#     else
+#         echo "❌ $ip 是无效的IPv4地址"
+#     fi
+# done
+
+nameserver_add() {
+    # 手工指定 DNS 解析服务器
+    grep '10.18.103.6' /etc/resolv.conf || sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+    grep '10.18.103.6' /etc/resolv.conf && echo "DNS已存在" || echo "DNS添加成功"
+
+}
+
+nameserver_del() {
+    # 删除手工指定的 DNS 解析服务器
+    sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf   
 }
 
 # 定义函数：从终端输入获取授权码
@@ -126,8 +165,7 @@ vpn_start() {
         echo "Failed to run '$vpn_process_name'."
     fi
 
-    # 手工指定 DNS 解析服务器
-    # sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+    nameserver_add
 }
 
 vpn_stop() {
@@ -136,6 +174,8 @@ vpn_stop() {
     # sudo ipsec stop
     sudo systemctl stop strongswan-starter.service
     is_process_running "$vpn_process_name" &>/dev/null || echo -e "\033[32mSTOPPING VPN...Done!\033[0m"
+
+    nameserver_del
 }
 
 vpn_status() {
@@ -225,7 +265,7 @@ proxy_status() {
     systemctl status $proxy_service_name
 }
 
-read -p "请输入要执行的操作: start(1), stop(2), restart_vpn(3), restart_proxy(4), dns_nameserver_add(5), dns_nameserver_remove(6), status(7): " action
+read -p "请输入要执行的操作: start(1), stop(2), restart_vpn(3), restart_proxy(4), nameserver_add(5), nameserver_del(6), status(7): " action
 
 case $action in
     start|1)
@@ -248,13 +288,11 @@ case $action in
         PROXY_IP=$VPN_IP
         proxy_start
         ;;
-    dns_nameserver_add|5)
-        # 添加手工指定 DNS 解析服务器
-        sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+    nameserver_add|5)
+        nameserver_add
         ;;
-    dns_nameserver_remove|6)
-        # 删除手工指定的 DNS 解析服务器
-        sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf
+    nameserver_del|6)
+        nameserver_del
         ;;
     status|7)
         vpn_status

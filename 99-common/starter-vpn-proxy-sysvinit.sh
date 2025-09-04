@@ -114,6 +114,18 @@ check_ipv4() {
 #     fi
 # done
 
+nameserver_add() {
+    # 手工指定 DNS 解析服务器
+    grep '10.18.103.6' /etc/resolv.conf || sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+    grep '10.18.103.6' /etc/resolv.conf && echo "DNS已存在" || echo "DNS添加成功"
+
+}
+
+nameserver_del() {
+    # 删除手工指定的 DNS 解析服务器
+    sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf   
+}
+
 # 定义函数：从终端输入获取授权码
 get_vpn_auth_code() {
     vpn_auth_code="$1"
@@ -276,13 +288,11 @@ case $action in
         PROXY_IP=$VPN_IP
         proxy_start
         ;;
-    dns_nameserver_add|5)
-        # 添加手工指定 DNS 解析服务器
-        sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+    nameserver_add|5)
+        nameserver_add
         ;;
-    dns_nameserver_remove|6)
-        # 删除手工指定的 DNS 解析服务器
-        sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf
+    nameserver_del|6)
+        nameserver_del
         ;;
     status|7)
         vpn_status
