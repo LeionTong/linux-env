@@ -162,8 +162,7 @@ vpn_start() {
         echo "FAILED to run '$vpn_process_name'."
     fi
 
-    # 手工指定 DNS 解析服务器
-    # sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+    nameserver_add
 }
 
 vpn_stop() {
@@ -172,8 +171,7 @@ vpn_stop() {
     sudo ipsec stop
     is_process_running "$vpn_process_name" &>/dev/null || echo -e "\033[32mSTOPPING VPN...Done!\033[0m"
 
-    # 删除手工指定的 DNS 解析服务器
-    # sudo sed -i '/nameserver 10.18.103.6/d' /etc/resolv.conf
+    nameserver_del
 }
 
 vpn_status() {
@@ -204,6 +202,9 @@ get_vpn_ip() {
         # VPN_IP=$(ip a s $INTERFACE_NAME | awk '/inet / && ++count == 2 {split($2, ip, "/"); print ip[1]}')
         ## VPN_IP=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {print $4}' | cut -d'/' -f1`
         ## VPN_IP=`ip -o -4 addr show $INTERFACE_NAME | awk 'NR==2 {split($4, a, "/"); print a[1]}'`
+
+        # for Android strongSwan Client:
+        # VPN_IP=`ip -o -4 addr show tun1 | awk 'NR==1 {split($4, a, "/"); print a[1]}'`
 
         # 验证IP有效性
         if check_ipv4 "$VPN_IP"; then
@@ -245,6 +246,7 @@ proxy_start() {
 
     if is_process_running "$proxy_process_name"; then
         echo -e "\033[32mSUCCEED to run '$proxy_process_name'.!\033[0m"
+        nameserver_add
     else
         echo "FAILED to run '$proxy_process_name'."
     fi
@@ -257,6 +259,8 @@ proxy_stop() {
     sudo pkill -x $proxy_process_name
     sudo rm -f /var/run/sockd.pid
     is_process_running "$proxy_process_name" &>/dev/null || echo -e "\033[32mSTOPPING PROXY...Done!\033[0m"
+
+    nameserver_del
 }
 
 proxy_status() {
