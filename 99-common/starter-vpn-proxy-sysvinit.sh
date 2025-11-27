@@ -18,11 +18,13 @@ if command -v danted &> /dev/null; then
     proxy_process_name="danted"
     proxy_config_file="/etc/danted.conf"
     proxy_log_file=/var/log/danted.log
+    proxy_error_log_file=/var/log/danted-error.log
     proxy_service_name="danted.service"
 elif command -v sockd &> /dev/null; then
     proxy_process_name="sockd"
     proxy_config_file="/etc/sockd.conf"
     proxy_log_file=/var/log/sockd.log
+    proxy_error_log_file=/var/log/sockd-error.log
     proxy_service_name="sockd.service"
 fi
 
@@ -265,7 +267,10 @@ proxy_stop() {
 
 proxy_status() {
     echo "STATUS of PROXY..."
-    is_process_running "$proxy_process_name" && sudo tail -n 1 $proxy_log_file || echo -e "\033[35m进程 $proxy_process_name 未运行。\033[0m"
+    is_process_running "$proxy_process_name" || echo -e "\033[35m进程 $proxy_process_name 未运行。\033[0m"
+    echo -e "\n"
+    sudo tail -n 1 $proxy_log_file
+    echo -e "\n"
 }
 
 read -p "请输入要执行的操作: start(1), stop(2), restart_vpn(3), restart_proxy(4), dns_nameserver_add(5), dns_nameserver_remove(6), status(7): " action

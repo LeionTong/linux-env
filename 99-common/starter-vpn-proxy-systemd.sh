@@ -265,7 +265,8 @@ proxy_status() {
     echo -e "\n"
     systemctl status $proxy_service_name
     echo -e "\n"
-    journalctl -u $proxy_service_name.service
+    # 列出当前系统启动后当天的 service 记录，日志直接输出（不分页）
+    journalctl -u $proxy_service_name -b --since today --no-pager
 }
 
 read -p "请输入要执行的操作: start(1), stop(2), restart_vpn(3), restart_proxy(4), nameserver_add(5), nameserver_del(6), status(7): " action
