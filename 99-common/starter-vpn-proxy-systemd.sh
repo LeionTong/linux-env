@@ -118,8 +118,12 @@ check_ipv4() {
 
 nameserver_add() {
     # 手工指定 DNS 解析服务器
-    grep '10.18.103.6' /etc/resolv.conf || sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
-    grep '10.18.103.6' /etc/resolv.conf && echo "DNS已存在" || echo "DNS添加成功"
+    if grep -q '10.18.103.6' /etc/resolv.conf; then
+        echo "DNS已存在"
+    else
+        sudo sed -i '1i\nameserver 10.18.103.6' /etc/resolv.conf
+        echo "DNS已成功添加"
+    fi
 }
 
 nameserver_del() {
