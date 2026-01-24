@@ -5,17 +5,17 @@ set -euo pipefail
 
 ## 获取vscode客户端版本
 # code --version
-commit_id=ac4cbdf48759c7d8c3eb91ffe6bb04316e263c57
+commit_id=585eba7c0c34fd6b30faac7c62a42050bfbc0086
 
 ## 下载包，放到 ~/.vscode-server/ 目录下
 curl -L https://vscode.download.prss.microsoft.com/dbazure/download/stable/${commit_id}/vscode-server-linux-x64.tar.gz -o vscode-server-linux-x64.tar.gz
 curl -L https://vscode.download.prss.microsoft.com/dbazure/download/stable/${commit_id}/vscode_cli_alpine_x64_cli.tar.gz -o vscode_cli_alpine_x64_cli.tar.gz
 
 ## 预清理（可选）
-cd ~/.vscode-server/
-rm -rf ./cli/servers/Stable-*
-rm -f ./.cli.*
-rm -f ./code-*
+# cd ~/.vscode-server/
+# rm -rf ./cli/servers/Stable-*
+# rm -f ./.cli.*
+# rm -f ./code-*
 
 ## 解压包
 cd ~/.vscode-server/
