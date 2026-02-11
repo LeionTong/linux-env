@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "分批次提交并提示推送",
+  "description": "在代码变更后，自动分批次提交代码并提醒用户推送到远程仓库",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "请检查当前的文件变更，将相关的修改分批次提交（每次提交包含逻辑相关的文件），并在完成后提示我推送到远程仓库"
+  },
+  "workspaceFolderName": "linux-env",
+  "shortName": "batch-commit-reminder"
+}

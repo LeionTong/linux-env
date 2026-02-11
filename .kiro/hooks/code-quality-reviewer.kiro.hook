@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Code Quality Reviewer",
+  "description": "Analyzes modified source code for potential improvements including code smells, design patterns, best practices, readability, maintainability, and performance optimizations",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the changes in this file for code quality improvements. Analyze for: 1) Code smells and anti-patterns, 2) Opportunities to apply design patterns, 3) Best practices violations, 4) Readability and maintainability issues, 5) Performance optimization opportunities. Provide specific, actionable suggestions while ensuring functionality remains unchanged."
+  },
+  "workspaceFolderName": "linux-env",
+  "shortName": "code-quality-reviewer"
+}
