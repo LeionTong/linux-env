@@ -26,10 +26,32 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 #---------LEION---------#
-. ~/.leionrc
+#. ~/.prox
+
+# [Docker]
+function img_push() {
+# 在本地主机上推送镜像到内网registry
+	for image in "${images[@]}"; do
+	    # docker login harbor.example.com -u admin -p Harbor12345 # 登录harbor仓库
+	    harbor_image="10.86.12.11:20200/leitong/${image}"  # 重新标记镜像，添加仓库地址前缀
+	    docker tag $image $harbor_image
+	    docker push $harbor_image  # 推送镜像到harbor
+	    docker rmi $harbor_image  # 清理本地标记的镜像
+	done
+}
+function img_pull() {
+# 在离线服务器上拉取内网registry的镜像
+	for image in "${images[@]}"; do
+	    harbor_image="10.86.12.11:20200/leitong/${image}"
+	    docker pull $harbor_image
+	    docker tag $harbor_image $image
+	    docker rmi $harbor_image
+	done
+}
 
 # nvm
 source /usr/share/nvm/init-nvm.sh
+export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
