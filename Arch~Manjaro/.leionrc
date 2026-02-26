@@ -1,0 +1,42 @@
+# [Proxy]
+PROXY_SERVER=127.0.0.1:7890
+export http_proxy=http://$PROXY_SERVER
+export https_proxy=http://$PROXY_SERVER
+export no_proxy="localhost,127.0.0.1,10.0.0.0/8"
+export HTTP_PROXY=http://$PROXY_SERVER
+export HTTPS_PROXY=http://$PROXY_SERVER
+export NO_PROXY="localhost,127.0.0.1,10.0.0.0/8"
+export ALL_PROXY=socks5://$PROXY_SERVER
+
+
+
+#nohup autossh -M 0 -f -N -T -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=10" -R 0.0.0.0:789:127.0.0.1:7890 -i ~/.ssh/id_ed25519-host-10-86-32-14 -p 2222 root@10.86.32.14 > /dev/null 2>&1 &
+
+
+
+# [nvm]
+export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node/
+
+# [Docker]
+function img_push() {
+# 在本地主机上推送镜像到内网registry
+	for image in "${images[@]}"; do
+	    # docker login harbor.example.com -u admin -p Harbor12345 # 登录harbor仓库
+	    harbor_image="10.86.12.11:20200/leitong/${image}"  # 重新标记镜像，添加仓库地址前缀
+	    docker tag $image $harbor_image
+	    docker push $harbor_image  # 推送镜像到harbor
+	    docker rmi $harbor_image  # 清理本地标记的镜像
+	done
+}
+function img_pull() {
+# 在离线服务器上拉取内网registry的镜像
+	for image in "${images[@]}"; do
+	    harbor_image="10.86.12.11:20200/leitong/${image}"
+	    docker pull $harbor_image
+	    docker tag $harbor_image $image
+	    docker rmi $harbor_image
+	done
+}
+
+
+
