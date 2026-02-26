@@ -1,0 +1,14 @@
+# [Proxy]
+PROXY_SERVER=127.0.0.1:7890
+export http_proxy=http://$PROXY_SERVER
+export https_proxy=http://$PROXY_SERVER
+export no_proxy="localhost,127.0.0.1,10.0.0.0/8"
+export HTTP_PROXY=http://$PROXY_SERVER
+export HTTPS_PROXY=http://$PROXY_SERVER
+export NO_PROXY="localhost,127.0.0.1,10.0.0.0/8"
+export ALL_PROXY=socks5://$PROXY_SERVER
+
+
+
+
+
