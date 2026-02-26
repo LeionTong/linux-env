@@ -1,0 +1,12 @@
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: no
+      addresses: [172.17.100.100/20]
+      routes:
+        - to: 0.0.0.0/0
+          via: 172.17.96.1
+      nameservers:
+        addresses: [119.29.29.29, 8.8.8.8]
+      dhcp6: true
