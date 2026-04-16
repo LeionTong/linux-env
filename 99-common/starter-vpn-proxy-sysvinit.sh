@@ -62,6 +62,17 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $*" >&2
 }
 
+# Get eth0 IPv4 address (fallback to 127.0.0.1 if unavailable)
+get_eth0_ip() {
+    local ip
+    ip=$(ip -4 addr show eth0 2>/dev/null | awk '/inet / {split($2, a, "/"); print a[1]; exit}')
+    if [[ -z "$ip" ]]; then
+        echo "127.0.0.1"
+    else
+        echo "$ip"
+    fi
+}
+
 is_process_running() {
     local process_name="$1"
     
@@ -309,7 +320,7 @@ case $action in
         get_vpn_auth_code $1
         vpn_start
         get_vpn_ip || exit 1
-        PROXY_IP=$VPN_IP
+        PROXY_IP=$(get_eth0_ip)
         proxy_start
         ;;
     stop|2)
@@ -322,7 +333,7 @@ case $action in
         ;;
     restart_proxy|4)
         get_vpn_ip || exit 1
-        PROXY_IP=$VPN_IP
+        PROXY_IP=$(get_eth0_ip)
         proxy_start
         ;;
     nameserver_add|5)
@@ -423,7 +434,7 @@ main() {
         start|1)
             vpn_start "$auth_code" || exit 1
             get_vpn_ip || exit 1
-            PROXY_IP="$VPN_IP"
+            PROXY_IP=$(get_eth0_ip)
             proxy_start || exit 1
             log_success "所有服务已成功启动"
             ;;
@@ -437,7 +448,7 @@ main() {
             ;;
         restart_proxy|4)
             get_vpn_ip || exit 1
-            PROXY_IP="$VPN_IP"
+            PROXY_IP=$(get_eth0_ip)
             proxy_start || exit 1
             ;;
         nameserver_add|5)
