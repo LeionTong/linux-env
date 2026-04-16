@@ -22,7 +22,7 @@ readonly PROXY_PORT="1080"
 readonly MAX_IP_ATTEMPTS=9
 readonly RETRY_DELAY=1
 
-PROXY_IP="127.0.0.1"
+PROXY_EXTERNAL_IP=""
 VPN_IP=""
 
 # Detect proxy configuration
@@ -258,7 +258,7 @@ proxy_start() {
     log_info "正在启动代理服务..."
     
     # Update proxy configuration with VPN IP
-    sudo sed -i "s/^external:.*/external: $PROXY_IP/" "$PROXY_CONFIG_FILE"
+    sudo sed -i "s/^external:.*/external: $PROXY_EXTERNAL_IP/" "$PROXY_CONFIG_FILE"
     
     if is_process_running "$PROXY_PROCESS_NAME"; then
         log_info "代理进程已运行，正在重启..."
@@ -273,7 +273,7 @@ proxy_start() {
     sleep 2
     
     if is_process_running "$PROXY_PROCESS_NAME"; then
-        log_success "代理服务启动成功 (IP: $PROXY_IP:$PROXY_PORT)"
+        log_success "代理服务启动成功 (socks5://$(get_eth0_ip):$PROXY_PORT)"
         return 0
     else
         log_error "代理服务启动失败"
@@ -434,7 +434,7 @@ main() {
         start|1)
             vpn_start "$auth_code" || exit 1
             get_vpn_ip || exit 1
-            PROXY_IP=$(get_eth0_ip)
+            PROXY_EXTERNAL_IP=$VPN_IP
             proxy_start || exit 1
             log_success "所有服务已成功启动"
             ;;
@@ -448,7 +448,7 @@ main() {
             ;;
         restart_proxy|4)
             get_vpn_ip || exit 1
-            PROXY_IP=$(get_eth0_ip)
+            PROXY_EXTERNAL_IP=$VPN_IP
             proxy_start || exit 1
             ;;
         nameserver_add|5)
