@@ -1,0 +1,82 @@
+# Python
+python/__pycache__/
+python/*.pyc
+python/*.pyo
+python/venv_py310/
+python/venv_py/
+*.pyc
+*.pyo
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+/.vs
+/.vscode
+
+# SSH keys and configs (contain sensitive data)
+.ssh/config
+.ssh/*.key
+.ssh/*.pem
+
+# Password files
+**/passwd-file
+**/passwd
+**/*.pgp
+**/*.gpg
+
+# Test outputs
+test/
+test-*/
+output/
+output-*/
+
+# Temp files
+tmp/
+*.tmp
+*.temp
+*.log
+logs/
+
+# Build artifacts
+*.o
+*.so
+*.dll
+*.exe
+
+# Environment specific
+.env
+.env.local
+.env.*.local
+
+# Virtual environments
+venv/
+venv_py310/
+venv_py/
+.venv/
+ENV/
+
+# Node (if used)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Credential files
+*.credential
+*. secrets
+**/secrets/
+**/credentials/
