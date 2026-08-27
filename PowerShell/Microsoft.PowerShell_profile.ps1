@@ -14,5 +14,11 @@ oh-my-posh init pwsh --config $themeFullPath | Invoke-Expression
 $env:HTTP_PROXY = "http://127.0.0.1:7890"
 $env:HTTPS_PROXY = "http://127.0.0.1:7890"
 $env:ALL_PROXY = "http://127.0.0.1:7890"
-
+$env:http_proxy = "http://127.0.0.1:7890"
+$env:https_proxy = "http://127.0.0.1:7890"
+# 本机/本地直连；其余全进 clash，由 clash 分流（含 aiproxy）
+$env:NO_PROXY = "127.0.0.1,localhost"
+$env:no_proxy = "127.0.0.1,localhost"
+# Node 24+：让 node 内置 fetch / undici 走上面的代理（dsh 等运行时 API 请求）
+$env:NODE_USE_ENV_PROXY = "1"
 #----------------------------------------------------------#
