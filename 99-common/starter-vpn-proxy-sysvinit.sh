@@ -135,25 +135,23 @@ nameserver_del() {
 
 get_vpn_auth_code() {
     local auth_code="$1"
-    local attempt=0
-    local max_attempts=3
     
     if [[ -n "$auth_code" ]]; then
         echo "$auth_code"
         return 0
     fi
     
-    while (( attempt < max_attempts )); do
-        ((attempt++))
-        read -rp "请输入VPN授权码 (尝试 $attempt/$max_attempts): " auth_code
-        if [[ -n "$auth_code" ]]; then
-            echo "$auth_code"
-            return 0
-        fi
-    done
+    # 允许空输入/直接回车：不更新授权码，按配置文件中已有的原码继续连接
+    read -rp "请输入VPN授权码: " auth_code || true
     
-    log_error "已达到最大尝试次数 ($max_attempts)，未输入授权码"
-    return 1
+    if [[ -z "$auth_code" ]]; then
+        # 注意：本函数用 stdout 回传授权码，日志必须走 stderr，否则会被调用方当成授权码捕获
+        log_info "未提供授权码，将使用配置文件中已有的授权码" >&2
+        return 0
+    fi
+    
+    echo "$auth_code"
+    return 0
 }
 
 vpn_start() {
@@ -164,9 +162,6 @@ vpn_start() {
         # Auth code provided, update the config file
         log_info "正在更新 VPN 授权码..."
         sudo sed -i "s/: XAUTH.*/: XAUTH  $auth_code/g" "$VPN_SECRET_FILE"
-    else
-        # No auth code provided, use existing one in config file
-        log_info "未提供授权码，将使用配置文件中已有的授权码"
     fi
     
     log_info "正在启动 VPN..."
@@ -312,45 +307,6 @@ proxy_status() {
     fi
     echo ""
 }
-
-read -p "请输入要执行的操作: start(1), stop(2), restart_vpn(3), restart_proxy(4), dns_nameserver_add(5), dns_nameserver_remove(6), status(7): " action
-
-case $action in
-    start|1)
-        get_vpn_auth_code $1
-        vpn_start
-        get_vpn_ip || exit 1
-        PROXY_IP=$(get_eth0_ip)
-        proxy_start
-        ;;
-    stop|2)
-        vpn_stop
-        proxy_stop
-        ;;
-    restart_vpn|3)
-        get_vpn_auth_code $1
-        vpn_start
-        ;;
-    restart_proxy|4)
-        get_vpn_ip || exit 1
-        PROXY_IP=$(get_eth0_ip)
-        proxy_start
-        ;;
-    nameserver_add|5)
-        nameserver_add
-        ;;
-    nameserver_del|6)
-        nameserver_del
-        ;;
-    status|7)
-        vpn_status
-        proxy_status
-        ;;
-    *)
-        echo "输入的操作无效! $action"
-        echo "Usage: $0 {start, stop... or 1, 2...}."
-        ;;
-esac
 
 show_usage() {
     echo -e "${CYAN}用法:${NC} $0 [操作] [VPN授权码]"
